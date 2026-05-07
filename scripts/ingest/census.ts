@@ -65,6 +65,12 @@ export function parseRows(raw: unknown, dmvFipsSet: Set<string>): Observation[] 
     col: colIndex.get(spec.variable),
   }));
 
+  for (const { spec, col } of variableCols) {
+    if (col === undefined) {
+      log.warn({ variable: spec.variable }, 'census: variable column absent from response headers');
+    }
+  }
+
   const minRequiredLen =
     Math.max(stateCol, countyCol, ...variableCols.map((v) => v.col ?? -1)) + 1;
 
