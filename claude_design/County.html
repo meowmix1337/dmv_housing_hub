@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DMV Housing — County detail</title>
+  <link rel="stylesheet" href="tokens.css" />
+  <style>
+    body { margin: 0; background: var(--bg-paper); }
+    .recharts-default-tooltip { font-variant-numeric: tabular-nums; }
+    *:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+    input[type="range"] { height: 22px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+  <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script src="data.js"></script>
+  <script src="county-data.js"></script>
+  <script type="text/babel" src="components.jsx"></script>
+  <script type="text/babel" src="county.jsx"></script>
+
+  <script type="text/babel">
+    const { useState } = React;
+    function App() {
+      const [fips, setFips] = useState("24031"); // Montgomery County exemplar
+      return (
+        <div data-screen-label="02 County detail">
+          <window.SiteHeader current="counties" onNav={() => {}} />
+          <window.CountyPage fips={fips} onBack={() => { window.location.href = "Home.html"; }} onPickCounty={setFips} />
+          <window.SiteFooter />
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
