@@ -20,17 +20,17 @@ interface ColumnSpec {
 }
 
 const COLUMN_MAP: Readonly<Record<string, ColumnSpec>> = {
-  median_sale_price: { metric: 'median_sale_price', unit: 'USD' },
-  median_list_price: { metric: 'median_list_price', unit: 'USD' },
-  median_ppsf: { metric: 'median_price_per_sqft', unit: 'USD_per_sqft' },
-  homes_sold: { metric: 'homes_sold', unit: 'count' },
-  new_listings: { metric: 'new_listings', unit: 'count' },
-  inventory: { metric: 'active_listings', unit: 'count' },
-  months_of_supply: { metric: 'months_supply', unit: 'months' },
-  median_dom: { metric: 'days_on_market', unit: 'days' },
-  avg_sale_to_list: { metric: 'sale_to_list_ratio', unit: 'ratio' },
-  sold_above_list: { metric: 'pct_sold_above_list', unit: 'percent' },
-  price_drops: { metric: 'pct_price_drops', unit: 'percent' },
+  MEDIAN_SALE_PRICE: { metric: 'median_sale_price', unit: 'USD' },
+  MEDIAN_LIST_PRICE: { metric: 'median_list_price', unit: 'USD' },
+  MEDIAN_PPSF: { metric: 'median_price_per_sqft', unit: 'USD_per_sqft' },
+  HOMES_SOLD: { metric: 'homes_sold', unit: 'count' },
+  NEW_LISTINGS: { metric: 'new_listings', unit: 'count' },
+  INVENTORY: { metric: 'active_listings', unit: 'count' },
+  MONTHS_OF_SUPPLY: { metric: 'months_supply', unit: 'months' },
+  MEDIAN_DOM: { metric: 'days_on_market', unit: 'days' },
+  AVG_SALE_TO_LIST: { metric: 'sale_to_list_ratio', unit: 'ratio' },
+  SOLD_ABOVE_LIST: { metric: 'pct_sold_above_list', unit: 'percent' },
+  PRICE_DROPS: { metric: 'pct_price_drops', unit: 'percent' },
 };
 
 const PROPERTY_TYPE_SLUGS: Readonly<Record<string, string>> = {
@@ -52,12 +52,12 @@ export function parseRow(
   row: Record<string, string>,
   fipsIndex: ReadonlyMap<string, string>,
 ): Observation[] {
-  if (row['period_duration'] !== '7') return [];
-  if (row['region_type'] !== 'county') return [];
+  if (row['PERIOD_DURATION'] !== '7') return [];
+  if (row['REGION_TYPE'] !== 'county') return [];
 
-  const stateCode = row['state_code'] ?? '';
+  const stateCode = row['STATE_CODE'] ?? '';
   if (!DMV_STATE_CODES.has(stateCode)) return [];
-  const regionRaw = row['region'] ?? '';
+  const regionRaw = row['REGION'] ?? '';
   const suffix = `, ${stateCode}`;
   const countyName = (
     regionRaw.endsWith(suffix) ? regionRaw.slice(0, -suffix.length) : regionRaw
@@ -65,18 +65,18 @@ export function parseRow(
 
   const fips = fipsIndex.get(countyName);
   if (!fips) {
-    log.warn({ region: row['region'], state_code: stateCode }, 'redfin: unresolved FIPS; skipping');
+    log.warn({ region: row['REGION'], state_code: stateCode }, 'redfin: unresolved FIPS; skipping');
     return [];
   }
 
-  const propertyType = row['property_type'] ?? '';
+  const propertyType = row['PROPERTY_TYPE'] ?? '';
   const slug = PROPERTY_TYPE_SLUGS[propertyType];
   if (!slug) {
     log.warn({ property_type: propertyType }, 'redfin: unrecognized property type; skipping');
     return [];
   }
 
-  const observedAt = row['period_end'];
+  const observedAt = row['PERIOD_END'];
   if (!observedAt) return [];
 
   const series = `redfin:county:${slug}`;

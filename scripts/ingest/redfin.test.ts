@@ -5,28 +5,28 @@ const FIPS_INDEX = buildFipsIndex();
 
 function baseRow(overrides: Partial<Record<string, string>> = {}): Record<string, string> {
   return {
-    period_begin: '2024-01-01',
-    period_end: '2024-01-07',
-    period_duration: '7',
-    region_type: 'county',
-    region: 'Montgomery County, MD',
-    state: 'Maryland',
-    state_code: 'MD',
-    property_type: 'All Residential',
-    median_sale_price: '500000',
-    median_list_price: '520000',
-    median_ppsf: '300',
-    median_list_ppsf: '310',
-    homes_sold: '150',
-    pending_sales: '200',
-    new_listings: '180',
-    inventory: '400',
-    months_of_supply: '1.5',
-    median_dom: '12',
-    avg_sale_to_list: '1.012',
-    sold_above_list: '0.45',
-    price_drops: '0.03',
-    off_market_in_two_weeks: '0.25',
+    PERIOD_BEGIN: '2024-01-01',
+    PERIOD_END: '2024-01-07',
+    PERIOD_DURATION: '7',
+    REGION_TYPE: 'county',
+    REGION: 'Montgomery County, MD',
+    STATE: 'Maryland',
+    STATE_CODE: 'MD',
+    PROPERTY_TYPE: 'All Residential',
+    MEDIAN_SALE_PRICE: '500000',
+    MEDIAN_LIST_PRICE: '520000',
+    MEDIAN_PPSF: '300',
+    MEDIAN_LIST_PPSF: '310',
+    HOMES_SOLD: '150',
+    PENDING_SALES: '200',
+    NEW_LISTINGS: '180',
+    INVENTORY: '400',
+    MONTHS_OF_SUPPLY: '1.5',
+    MEDIAN_DOM: '12',
+    AVG_SALE_TO_LIST: '1.012',
+    SOLD_ABOVE_LIST: '0.45',
+    PRICE_DROPS: '0.03',
+    OFF_MARKET_IN_TWO_WEEKS: '0.25',
     ...overrides,
   };
 }
@@ -57,13 +57,13 @@ describe('parseRow', () => {
   });
 
   it('returns empty array for monthly rows (period_duration = 30)', () => {
-    const obs = parseRow(baseRow({ period_duration: '30' }), FIPS_INDEX);
+    const obs = parseRow(baseRow({ PERIOD_DURATION: '30' }), FIPS_INDEX);
     expect(obs).toHaveLength(0);
   });
 
   it('returns empty array for rows outside DMV (state_code = CA)', () => {
     const obs = parseRow(
-      baseRow({ state_code: 'CA', region: 'San Diego County, CA' }),
+      baseRow({ STATE_CODE: 'CA', REGION: 'San Diego County, CA' }),
       FIPS_INDEX,
     );
     expect(obs).toHaveLength(0);
@@ -71,7 +71,7 @@ describe('parseRow', () => {
 
   it('resolves Alexandria city VA to FIPS 51510', () => {
     const obs = parseRow(
-      baseRow({ region: 'Alexandria city, VA', state_code: 'VA' }),
+      baseRow({ REGION: 'Alexandria city, VA', STATE_CODE: 'VA' }),
       FIPS_INDEX,
     );
     const salePrice = obs.find((o) => o.metric === 'median_sale_price');
