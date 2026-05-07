@@ -64,7 +64,7 @@ export function parseRow(
   const propertyType = row['property_type'] ?? '';
   const slug = PROPERTY_TYPE_SLUGS[propertyType];
   if (!slug) {
-    log.warn({ property_type: propertyType }, 'redfin: unknown property type; skipping');
+    log.warn({ property_type: propertyType }, 'redfin: unrecognized property type; skipping');
     return [];
   }
 

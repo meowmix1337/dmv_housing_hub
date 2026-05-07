@@ -1,13 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { parseRow } from './redfin.js';
+import { parseRow, buildFipsIndex } from './redfin.js';
 
-// Mirrors what buildFipsIndex() produces from DMV_COUNTIES
-const FIPS_INDEX: ReadonlyMap<string, string> = new Map([
-  ['montgomery county', '24031'],
-  ['district of columbia', '11001'],
-  ['alexandria city', '51510'],
-  ['fairfax county', '51059'],
-]);
+const FIPS_INDEX = buildFipsIndex();
 
 function baseRow(overrides: Partial<Record<string, string>> = {}): Record<string, string> {
   return {
