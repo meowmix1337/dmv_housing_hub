@@ -103,9 +103,9 @@ For DMV: loop over the FIPS list, breaking into state+county pairs (state 11 for
 
 ### Gotchas
 
+- ACS year is hardcoded as `ACS_YEAR = 2023` in `scripts/ingest/census.ts`. The 2024 5-year vintage was released December 2025 and is available — bump this constant in a follow-up PR.
 - DC is queried as `for=county:001&in=state:11` (single county-equivalent).
-- Independent VA cities are county-equivalents — same query pattern.
-- Use the latest ACS year available (currently 2023 5-year). Check yearly for new release in December.
+- Independent VA cities are county-equivalents — included automatically when querying `for=county:*&in=state:51`.
 
 ---
 
