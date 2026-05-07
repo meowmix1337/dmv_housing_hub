@@ -51,7 +51,7 @@ export function parseRows(raw: unknown, dmvFipsSet: Set<string>): Observation[] 
   const colIndex = new Map<string, number>();
   for (let i = 0; i < header.length; i++) {
     const h = header[i];
-    if (h != null) colIndex.set(h, i);
+    if (h !== null) colIndex.set(h, i);
   }
 
   const stateCol = colIndex.get('state');
