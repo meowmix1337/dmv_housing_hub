@@ -11,6 +11,8 @@ export interface FetchOptions {
   headers?: Record<string, string>;
   /** Used for log messages and error context */
   label?: string;
+  method?: string;
+  body?: string;
 }
 
 /**
@@ -23,6 +25,8 @@ export async function fetchWithRetry(url: string, options: FetchOptions = {}): P
     retries = DEFAULT_RETRIES,
     headers = {},
     label = url,
+    method,
+    body,
   } = options;
 
   let lastErr: unknown;
@@ -34,6 +38,8 @@ export async function fetchWithRetry(url: string, options: FetchOptions = {}): P
     try {
       const res = await fetch(url, {
         signal: controller.signal,
+        method,
+        body,
         headers: {
           'User-Agent': USER_AGENT,
           Accept: 'application/json, text/csv, text/tab-separated-values, */*',
