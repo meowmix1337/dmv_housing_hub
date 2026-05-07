@@ -129,7 +129,7 @@ async function fetchStateGroup(
 ): Promise<unknown> {
   const variableList = VARIABLES.map((v) => v.variable).join(',');
   const url =
-    `${BASE_URL}?get=NAME,${variableList},state,county` +
+    `${BASE_URL}?get=NAME,${variableList}` +
     `&for=county:${countyParam}&in=state:${stateFips}&key=${apiKey}`;
 
   try {
@@ -167,8 +167,9 @@ export class CensusSource implements DataSource {
         all.push(...obs);
         log.info({ stateFips, count: obs.length }, 'census: state group done');
       } catch (err) {
+        const cause = err instanceof Error && err.cause instanceof Error ? err.cause.message : undefined;
         log.error(
-          { stateFips, err: errMessage(err) },
+          { stateFips, err: errMessage(err), cause },
           'census: state group failed; continuing',
         );
       }
