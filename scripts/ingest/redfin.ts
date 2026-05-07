@@ -38,12 +38,19 @@ const PROPERTY_TYPE_SLUGS: Readonly<Record<string, string>> = {
   'Single Family Residential': 'single_family',
   'Condo/Co-op': 'condo',
   Townhouse: 'townhouse',
+  'Multi-Family (2-4 Unit)': 'multi_family',
 };
 
 export function buildFipsIndex(): ReadonlyMap<string, string> {
   const map = new Map<string, string>();
   for (const county of DMV_COUNTIES) {
-    map.set(county.name.toLowerCase(), county.fips);
+    const key = county.name.toLowerCase();
+    map.set(key, county.fips);
+    // Redfin sometimes omits " city" suffix for independent VA cities
+    // (e.g. "Alexandria, VA" instead of "Alexandria city, VA")
+    if (key.endsWith(' city')) {
+      map.set(key.slice(0, -5), county.fips);
+    }
   }
   return map;
 }
@@ -52,7 +59,8 @@ export function parseRow(
   row: Record<string, string>,
   fipsIndex: ReadonlyMap<string, string>,
 ): Observation[] {
-  if (row['PERIOD_DURATION'] !== '7') return [];
+  const duration = row['PERIOD_DURATION'];
+  if (duration !== '7' && duration !== '30') return [];
   if (row['REGION_TYPE'] !== 'county') return [];
 
   const stateCode = row['STATE_CODE'] ?? '';
@@ -65,7 +73,7 @@ export function parseRow(
 
   const fips = fipsIndex.get(countyName);
   if (!fips) {
-    log.warn({ region: row['REGION'], state_code: stateCode }, 'redfin: unresolved FIPS; skipping');
+    log.debug({ region: row['REGION'], state_code: stateCode }, 'redfin: county not in DMV area; skipping');
     return [];
   }
 
@@ -126,6 +134,14 @@ export class RedfinSource implements DataSource {
       throw new IngestError('Redfin response has no body', { source: 'redfin', url: REDFIN_URL });
     }
 
+    log.info(
+      {
+        content_type: response.headers.get('content-type'),
+        content_encoding: response.headers.get('content-encoding'),
+      },
+      'redfin: response headers',
+    );
+
     const fipsIndex = buildFipsIndex();
     const all: Observation[] = [];
 
@@ -142,9 +158,27 @@ export class RedfinSource implements DataSource {
       skip_empty_lines: true,
       relax_column_count: true,
     });
+
+    let totalRows = 0;
     const collector = new Writable({
       objectMode: true,
       write(row: Record<string, string>, _encoding, callback) {
+        totalRows++;
+        if (totalRows <= 3) {
+          log.info(
+            {
+              row_num: totalRows,
+              num_cols: Object.keys(row).length,
+              first_keys: Object.keys(row).slice(0, 6),
+              PERIOD_DURATION: row['PERIOD_DURATION'],
+              REGION_TYPE: row['REGION_TYPE'],
+              STATE_CODE: row['STATE_CODE'],
+              REGION: row['REGION'],
+              PROPERTY_TYPE: row['PROPERTY_TYPE'],
+            },
+            'redfin: debug row sample',
+          );
+        }
         all.push(...parseRow(row, fipsIndex));
         callback();
       },
@@ -159,6 +193,8 @@ export class RedfinSource implements DataSource {
         err,
       );
     }
+
+    log.info({ total_rows: totalRows }, 'redfin: pipeline complete');
 
     if (all.length === 0) {
       log.warn('redfin: zero observations after filtering');

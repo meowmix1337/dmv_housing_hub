@@ -56,8 +56,13 @@ describe('parseRow', () => {
     expect(soldAbove?.unit).toBe('percent');
   });
 
-  it('returns empty array for monthly rows (period_duration = 30)', () => {
+  it('accepts monthly rows (period_duration = 30)', () => {
     const obs = parseRow(baseRow({ PERIOD_DURATION: '30' }), FIPS_INDEX);
+    expect(obs).toHaveLength(11);
+  });
+
+  it('returns empty array for unsupported durations (period_duration = 14)', () => {
+    const obs = parseRow(baseRow({ PERIOD_DURATION: '14' }), FIPS_INDEX);
     expect(obs).toHaveLength(0);
   });
 
@@ -72,6 +77,15 @@ describe('parseRow', () => {
   it('resolves Alexandria city VA to FIPS 51510', () => {
     const obs = parseRow(
       baseRow({ REGION: 'Alexandria city, VA', STATE_CODE: 'VA' }),
+      FIPS_INDEX,
+    );
+    const salePrice = obs.find((o) => o.metric === 'median_sale_price');
+    expect(salePrice?.fips).toBe('51510');
+  });
+
+  it('resolves Alexandria VA (no city suffix) to FIPS 51510', () => {
+    const obs = parseRow(
+      baseRow({ REGION: 'Alexandria, VA', STATE_CODE: 'VA' }),
       FIPS_INDEX,
     );
     const salePrice = obs.find((o) => o.metric === 'median_sale_price');
