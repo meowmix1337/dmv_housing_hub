@@ -1,4 +1,5 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
+config({ path: new URL('../../.env', import.meta.url).pathname });
 import { join } from 'node:path';
 import type { Observation } from '@dmv/shared';
 import { log } from '../lib/log.js';
