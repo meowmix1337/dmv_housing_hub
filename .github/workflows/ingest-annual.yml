@@ -1,0 +1,48 @@
+name: Ingest annual
+
+# Census ACS 5-year estimates release each December. FHFA county HPI is annual.
+on:
+  schedule:
+    - cron: '0 14 15 12 *'  # 14:00 UTC, December 15th
+  workflow_dispatch:
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ingest Census ACS
+        run: npm run ingest:census --workspace=scripts
+        env:
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+
+      - name: Ingest FRED (annual county HPI)
+        run: npm run ingest:fred --workspace=scripts
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+
+      - name: Transform → per-county JSON
+        run: npm run transform --workspace=scripts
+
+      - name: Commit data changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add web/public/data/
+          if git diff --staged --quiet; then
+            echo "No data changes"
+          else
+            git commit -m "data: annual refresh (census ACS, fred county HPI)"
+            git push
+          fi

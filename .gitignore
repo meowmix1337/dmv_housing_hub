@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Cache directories
+.cache/
+scripts/.cache/
+.vite/
+.eslintcache
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Test coverage
+coverage/
+*.lcov
+
+# Raw data archives (regenerable, do not commit)
+scripts/raw-archives/
+
+# OS
+Thumbs.db
+
+# Raw bulk data downloads — never commit these
+web/public/data/raw/
+
+# Tool-specific
+.omc
+.claude
+.serena

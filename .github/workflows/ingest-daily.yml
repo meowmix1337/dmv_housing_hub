@@ -1,0 +1,12 @@
+name: Ingest daily
+
+# No v1 sources update at daily cadence.
+# Add steps here when a daily source is introduced.
+on:
+  workflow_dispatch:
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "No daily sources configured yet."

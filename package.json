@@ -1,0 +1,34 @@
+{
+  "name": "dmv-housing-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interactive informational dashboard for the DMV housing market",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "shared",
+    "scripts",
+    "web"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=shared && npm run build --workspace=web",
+    "dev": "npm run dev --workspace=web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "ingest": "npm run ingest --workspace=scripts",
+    "transform": "npm run transform --workspace=scripts",
+    "test": "npm run test --workspaces --if-present",
+    "prep-geojson": "tsx scripts/prep-geojson.ts"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.5.0"
+  }
+}
