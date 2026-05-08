@@ -16,7 +16,7 @@ const METRICS: Array<{ id: ChoroplethMetric; label: string }> = [
   { id: 'marketHealthScore', label: 'Market health' },
 ];
 
-const MAP_STYLE = 'https://demotiles.maplibre.org/style.json';
+const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 const GEO_URL = '/data/geo/dmv-counties.geojson';
 const SOURCE_ID = 'dmv-counties';
 const FILL_LAYER = 'dmv-fill';
