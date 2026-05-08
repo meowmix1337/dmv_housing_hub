@@ -31,6 +31,10 @@ export function getMetricSeries(metric: string): Promise<MetricSeries> {
   return getJson<MetricSeries>(`/metrics/${metric}.json`);
 }
 
+export function getMortgageRates(): Promise<MetricSeries> {
+  return getJson<MetricSeries>('/metrics/mortgage-rates.json');
+}
+
 export function getManifest(): Promise<Manifest> {
   return getJson<Manifest>('/manifest.json');
 }
