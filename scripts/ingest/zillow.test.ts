@@ -37,6 +37,13 @@ describe('buildFipsIndex', () => {
     const idx = buildFipsIndex();
     expect(idx.get('falls church')).toBe('51610');
   });
+
+  it('contains entries for all 21 DMV counties plus stripped-suffix aliases', () => {
+    const idx = buildFipsIndex();
+    // 21 primary entries + 6 stripped " city" aliases (Alexandria, Fairfax, Falls Church,
+    // Manassas, Manassas Park, Baltimore)
+    expect(idx.size).toBe(27);
+  });
 });
 
 const COUNTY_SPEC: FileSpec = {

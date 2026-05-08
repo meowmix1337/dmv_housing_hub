@@ -175,7 +175,7 @@ URLs are documented at https://www.zillow.com/research/data/ but Zillow notes pa
 ### Gotchas
 
 - **Wide format**: ingester must transpose to long form (one row per (fips, date, value)).
-- Geography column: `RegionID` (Zillow internal), `RegionName` (county name), `StateName` (state). Filter by state to "DC", "MD", "VA". Then resolve `RegionName` → FIPS via a lookup table — Zillow doesn't include FIPS.
+- Geography column: `RegionID` (Zillow internal), `RegionName` (county name), `StateName` (state). Filter by `StateName` in `{"District of Columbia", "Maryland", "Virginia"}` (full names, not abbreviations). Then resolve `RegionName` → FIPS via a lookup table — Zillow doesn't include FIPS.
 - Zillow uses idiosyncratic names: "Prince George's County" matches; "DC" is just `RegionName="District of Columbia"`.
 - Independent VA cities appear with " (City)" suffix in some files.
 
