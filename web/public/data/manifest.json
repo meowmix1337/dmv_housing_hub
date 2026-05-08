@@ -1,0 +1,35 @@
+{
+  "generatedAt": "2026-05-08T13:38:59.212Z",
+  "sources": [
+    {
+      "name": "fred",
+      "lastUpdated": "2026-05-07T15:34:59.136Z",
+      "cadence": "monthly",
+      "status": "ok"
+    },
+    {
+      "name": "census",
+      "lastUpdated": "2026-05-07T20:28:32.354Z",
+      "cadence": "annual",
+      "status": "ok"
+    },
+    {
+      "name": "bls",
+      "lastUpdated": "2026-05-07T15:17:00.857Z",
+      "cadence": "monthly",
+      "status": "ok"
+    },
+    {
+      "name": "zillow",
+      "lastUpdated": "2026-05-08T13:06:25.115Z",
+      "cadence": "monthly",
+      "status": "ok"
+    },
+    {
+      "name": "redfin",
+      "lastUpdated": "2026-05-07T23:04:21.637Z",
+      "cadence": "weekly",
+      "status": "ok"
+    }
+  ]
+}
