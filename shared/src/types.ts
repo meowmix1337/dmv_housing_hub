@@ -38,7 +38,8 @@ export type MetricId =
   | 'federal_employment'
   | 'building_permits'
   | 'hotness_score'
-  | 'hotness_rank';
+  | 'hotness_rank'
+  | 'population';
 
 export type Unit =
   | 'USD'
@@ -121,6 +122,7 @@ export interface CountySummary {
   jurisdiction: Jurisdiction;
   population?: number;
   medianHouseholdIncome?: number;
+  propertyTaxRate?: number;
   lastUpdated: string;
   current: CountyCurrentSnapshot;
   series: CountySeries;

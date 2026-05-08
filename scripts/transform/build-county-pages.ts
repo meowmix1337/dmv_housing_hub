@@ -18,6 +18,10 @@ import {
   METRICS_DIR,
 } from '../lib/paths.js';
 import { DMV_COUNTIES } from '../lib/counties.js';
+import { PROPERTY_TAX_RATES } from '../lib/property-tax-rates.js';
+import { getPopulationByFips } from '../lib/populations.js';
+import { marketHealthScore } from './marketHealth.js';
+import { affordabilityIndex } from './affordability.js';
 
 // Validate only the metadata envelope — not the observations array.
 // Zod's array parse recurses per-element and overflows the call stack on large caches (e.g. 160K redfin rows).
@@ -129,6 +133,8 @@ function buildCountySummary(
   fips: string,
   observations: Observation[],
   generatedAt: string,
+  mortgageRate: number | undefined,
+  populationByFips: Record<string, number>,
 ): CountySummary {
   const county = DMV_COUNTIES.find((c) => c.fips === fips);
   if (!county) {
@@ -214,6 +220,49 @@ function buildCountySummary(
     summary.medianHouseholdIncome = toMetricPoints(incomeObs).at(-1)?.value;
   }
 
+  // Property tax rate (static lookup)
+  const taxRate = PROPERTY_TAX_RATES[fips];
+  if (taxRate !== undefined) {
+    summary.propertyTaxRate = taxRate;
+  } else {
+    log.warn({ fips }, 'no property tax rate for FIPS; skipping');
+  }
+
+  // Population from census cache (when available)
+  const pop = populationByFips[fips];
+  if (pop !== undefined) {
+    summary.population = pop;
+  }
+
+  // Market health score
+  const mhs = marketHealthScore({
+    monthsSupply: summary.current.monthsSupply,
+    saleToListRatio: summary.current.saleToListRatio,
+    pctSoldAboveList: summary.current.pctSoldAboveList,
+  });
+  if (mhs !== undefined) {
+    summary.current.marketHealthScore = mhs;
+  } else {
+    log.warn({ fips }, 'insufficient inputs for marketHealthScore; skipping');
+  }
+
+  // Affordability index
+  if (mortgageRate !== undefined) {
+    const ai = affordabilityIndex({
+      medianSalePrice: summary.current.medianSalePrice,
+      propertyTaxRate: taxRate,
+      medianHouseholdIncome: summary.medianHouseholdIncome,
+      mortgageRate,
+    });
+    if (ai !== undefined) {
+      summary.current.affordabilityIndex = ai;
+    } else {
+      log.warn({ fips }, 'insufficient inputs for affordabilityIndex; skipping');
+    }
+  } else {
+    log.warn({ fips }, 'no mortgage rate available for affordabilityIndex; skipping');
+  }
+
   return summary;
 }
 
@@ -221,6 +270,23 @@ function isoYearAgo(date: string): string {
   const d = new Date(date);
   d.setUTCFullYear(d.getUTCFullYear() - 1);
   return d.toISOString().slice(0, 10);
+}
+
+interface MortgageRatesFile {
+  points: MetricPoint[];
+}
+
+async function loadLatestMortgageRate(): Promise<number | undefined> {
+  try {
+    const raw = await readJson<MortgageRatesFile>(join(METRICS_DIR, 'mortgage-rates.json'));
+    const latest = raw.points?.at(-1);
+    if (latest?.value == null) return undefined;
+    // FRED stores as percent (e.g., 6.23); convert to decimal
+    return latest.value / 100;
+  } catch {
+    log.warn('no mortgage-rates.json yet; affordabilityIndex will be skipped');
+    return undefined;
+  }
 }
 
 async function main(): Promise<void> {
@@ -235,14 +301,8 @@ async function main(): Promise<void> {
   await ensureDir(COUNTIES_DIR);
   await ensureDir(METRICS_DIR);
 
-  for (const county of DMV_COUNTIES) {
-    const summary = buildCountySummary(county.fips, observations, generatedAt);
-    const path = join(COUNTIES_DIR, `${county.fips}.json`);
-    await writeJsonAtomic(path, summary);
-    log.info({ fips: county.fips, name: county.name, path }, 'wrote county summary');
-  }
-
-  // National mortgage rate metric series
+  // Write mortgage rates first so loadLatestMortgageRate can read them on re-runs;
+  // on first run the file won't exist yet and affordability is skipped.
   const mortgageObs = observations.filter(
     (o) => o.metric === 'mortgage_30y_rate' && o.fips === 'USA',
   );
@@ -256,6 +316,18 @@ async function main(): Promise<void> {
       lastUpdated: generatedAt,
       points: toMetricPoints(mortgageObs),
     });
+  }
+
+  const [mortgageRate, populationByFips] = await Promise.all([
+    loadLatestMortgageRate(),
+    getPopulationByFips(),
+  ]);
+
+  for (const county of DMV_COUNTIES) {
+    const summary = buildCountySummary(county.fips, observations, generatedAt, mortgageRate, populationByFips);
+    const path = join(COUNTIES_DIR, `${county.fips}.json`);
+    await writeJsonAtomic(path, summary);
+    log.info({ fips: county.fips, name: county.name, path }, 'wrote county summary');
   }
 
   const finalManifest: Manifest = { generatedAt, sources: manifest };
