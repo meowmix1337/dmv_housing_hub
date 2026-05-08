@@ -50,3 +50,6 @@ web/public/data/raw/
 .omc
 .claude
 .serena
+
+# Git worktrees
+.worktrees/
