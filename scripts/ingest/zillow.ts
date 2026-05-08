@@ -20,12 +20,9 @@
  */
 
 import type { MetricId, Observation, Unit } from '@dmv/shared';
-import { parse } from 'csv-parse/sync';
 import type { DataSource } from './DataSource.js';
 import { IngestError } from '../lib/errors.js';
 import { DMV_COUNTIES } from '../lib/counties.js';
-import { fetchWithRetry } from '../lib/http.js';
-import { log } from '../lib/log.js';
 
 export interface FileSpec {
   url: string;
