@@ -128,3 +128,56 @@ describe('parseRow - county scope', () => {
     expect(first?.series).toBe('zillow:county:zhvi_all_homes');
   });
 });
+
+const METRO_SPEC: FileSpec = {
+  url: 'https://example.com/Metro_zhvi_all.csv',
+  metric: 'zhvi_all_homes',
+  unit: 'USD',
+  scope: 'metro',
+};
+
+function baseMetroRow(overrides: Partial<Record<string, string>> = {}): Record<string, string> {
+  return {
+    RegionID: '102001',
+    SizeRank: '4',
+    RegionName: 'Washington, DC',
+    RegionType: 'msa',
+    StateName: 'DC',
+    '2024-01-31': '620000',
+    '2024-02-29': '625000',
+    ...overrides,
+  };
+}
+
+describe('parseRow - metro scope', () => {
+  const fipsIndex = buildFipsIndex();
+
+  it('skips non-DC metro rows', () => {
+    const row = baseMetroRow({ RegionName: 'Chicago, IL' });
+    expect(parseRow(row, METRO_SPEC, fipsIndex)).toHaveLength(0);
+  });
+
+  it('skips non-DC metro rows regardless of StateName', () => {
+    const row = baseMetroRow({ RegionName: 'New York, NY', StateName: 'NY' });
+    expect(parseRow(row, METRO_SPEC, fipsIndex)).toHaveLength(0);
+  });
+
+  it('matches "Washington, DC" and assigns fips 47900', () => {
+    const obs = parseRow(baseMetroRow(), METRO_SPEC, fipsIndex);
+    expect(obs.length).toBeGreaterThan(0);
+    expect(obs[0]).toMatchObject({
+      source: 'zillow',
+      series: 'zillow:metro:zhvi_all_homes',
+      fips: '47900',
+      metric: 'zhvi_all_homes',
+      observedAt: '2024-01-31',
+      value: 620000,
+      unit: 'USD',
+    });
+  });
+
+  it('emits one observation per filled date column', () => {
+    const obs = parseRow(baseMetroRow(), METRO_SPEC, fipsIndex);
+    expect(obs).toHaveLength(2);
+  });
+});
