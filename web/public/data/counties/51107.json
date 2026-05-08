@@ -2,7 +2,7 @@
   "fips": "51107",
   "name": "Loudoun County",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-08T13:40:20.865Z",
+  "lastUpdated": "2026-05-08T19:14:58.572Z",
   "current": {
     "zhvi": 805711.1610069895,
     "zhviYoY": 0.0008372154855917701,
@@ -12,7 +12,9 @@
     "monthsSupply": 1.8,
     "unemploymentRate": 3.8,
     "saleToListRatio": 1.007343483,
-    "pctSoldAboveList": 0.4072164948
+    "pctSoldAboveList": 0.4072164948,
+    "marketHealthScore": 76,
+    "affordabilityIndex": 0.3009919954742759
   },
   "series": {
     "fhfaHpi": [
@@ -3538,5 +3540,6 @@
       }
     ]
   },
-  "medianHouseholdIncome": 178707
+  "medianHouseholdIncome": 178707,
+  "propertyTaxRate": 0.00875
 }

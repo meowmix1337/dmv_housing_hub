@@ -2,7 +2,7 @@
   "fips": "51510",
   "name": "Alexandria city",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-08T13:40:20.865Z",
+  "lastUpdated": "2026-05-08T19:14:58.572Z",
   "current": {
     "zhvi": 685515.2306786352,
     "zhviYoY": 0.011929583794131742,
@@ -12,7 +12,9 @@
     "monthsSupply": 1.9,
     "unemploymentRate": 3.4,
     "saleToListRatio": 1.004715423,
-    "pctSoldAboveList": 0.3821989529
+    "pctSoldAboveList": 0.3821989529,
+    "marketHealthScore": 74,
+    "affordabilityIndex": 0.429910029570812
   },
   "series": {
     "fhfaHpi": [
@@ -2966,5 +2968,6 @@
       }
     ]
   },
-  "medianHouseholdIncome": 113638
+  "medianHouseholdIncome": 113638,
+  "propertyTaxRate": 0.0111
 }

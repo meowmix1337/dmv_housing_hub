@@ -2,7 +2,7 @@
   "fips": "24009",
   "name": "Calvert County",
   "jurisdiction": "MD",
-  "lastUpdated": "2026-05-08T13:40:20.865Z",
+  "lastUpdated": "2026-05-08T19:14:58.572Z",
   "current": {
     "zhvi": 483000.5885923361,
     "zhviYoY": 0.017972949373464532,
@@ -12,7 +12,9 @@
     "monthsSupply": 2.7,
     "unemploymentRate": 4.2,
     "saleToListRatio": 0.9974935391,
-    "pctSoldAboveList": 0.3369565217
+    "pctSoldAboveList": 0.3369565217,
+    "marketHealthScore": 66,
+    "affordabilityIndex": 0.25494120396534325
   },
   "series": {
     "fhfaHpi": [
@@ -3530,5 +3532,6 @@
       }
     ]
   },
-  "medianHouseholdIncome": 132059
+  "medianHouseholdIncome": 132059,
+  "propertyTaxRate": 0.008635
 }

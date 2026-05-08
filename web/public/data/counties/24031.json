@@ -2,7 +2,7 @@
   "fips": "24031",
   "name": "Montgomery County",
   "jurisdiction": "MD",
-  "lastUpdated": "2026-05-08T13:40:20.865Z",
+  "lastUpdated": "2026-05-08T19:14:58.572Z",
   "current": {
     "zhvi": 622526.8252045638,
     "zhviYoY": -0.013486187501561631,
@@ -12,7 +12,9 @@
     "monthsSupply": 3.2,
     "unemploymentRate": 4.6,
     "saleToListRatio": 0.9983924341,
-    "pctSoldAboveList": 0.375
+    "pctSoldAboveList": 0.375,
+    "marketHealthScore": 64,
+    "affordabilityIndex": 0.20505653079951475
   },
   "series": {
     "fhfaHpi": [
@@ -3542,5 +3544,6 @@
       }
     ]
   },
-  "medianHouseholdIncome": 128733
+  "medianHouseholdIncome": 128733,
+  "propertyTaxRate": 0.01
 }

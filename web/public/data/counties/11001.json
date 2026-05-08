@@ -2,7 +2,7 @@
   "fips": "11001",
   "name": "District of Columbia",
   "jurisdiction": "DC",
-  "lastUpdated": "2026-05-08T13:40:20.865Z",
+  "lastUpdated": "2026-05-08T19:14:58.572Z",
   "current": {
     "zhvi": 583076.9209961476,
     "zhviYoY": -0.029493112500912567,
@@ -12,7 +12,9 @@
     "monthsSupply": 5.2,
     "unemploymentRate": 5.7,
     "saleToListRatio": 0.9867668623,
-    "pctSoldAboveList": 0.2344045369
+    "pctSoldAboveList": 0.2344045369,
+    "marketHealthScore": 42,
+    "affordabilityIndex": 0.4555938254025403
   },
   "series": {
     "fhfaHpi": [
@@ -3542,5 +3544,6 @@
       }
     ]
   },
-  "medianHouseholdIncome": 106287
+  "medianHouseholdIncome": 106287,
+  "propertyTaxRate": 0.0085
 }
