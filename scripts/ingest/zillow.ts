@@ -1,28 +1,8 @@
-/**
- * Zillow Research ingester. Downloads ZHVI (typical home value) and ZORI
- * (rent index) CSVs and transposes from wide to long format.
- *
- * STATUS: stub — implement per DATA_SOURCES.md §5 in step 9 of PROJECT_SPEC.
- *
- * Implementation hints:
- *   - Files are CSV in WIDE format: one row per geography, one column per month.
- *   - Filter to StateName in {"District of Columbia", "Maryland", "Virginia"}.
- *   - Zillow does not include FIPS — resolve RegionName → FIPS via DMV_COUNTIES.
- *   - Independent VA cities sometimes have " (City)" suffix in some files.
- *   - URLs may change; scrape the data page on first run and cache the discovery.
- *   - Use csv-parse for streaming over the multi-MB files.
- *
- * Files of interest:
- *   - County_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv  (all-homes mid-tier)
- *   - County_zhvi_uc_sfr_tier_0.33_0.67_sm_sa_month.csv       (SFH only)
- *   - County_zhvi_uc_condo_tier_0.33_0.67_sm_sa_month.csv     (condo)
- *   - County_zori_uc_sfrcondomfr_sm_sa_month.csv              (rent)
- */
-
 import type { MetricId, Observation, Unit } from '@dmv/shared';
+import { parse } from 'csv-parse/sync';
 import type { DataSource } from './DataSource.js';
-import { IngestError } from '../lib/errors.js';
 import { DMV_COUNTIES } from '../lib/counties.js';
+import { fetchWithRetry } from '../lib/http.js';
 import { log } from '../lib/log.js';
 
 export interface FileSpec {
@@ -32,27 +12,61 @@ export interface FileSpec {
   scope: 'county' | 'metro';
 }
 
+const ZHVI_BASE = 'https://files.zillowstatic.com/research/public_csvs/zhvi';
+const ZORI_BASE = 'https://files.zillowstatic.com/research/public_csvs/zori';
+
+const FILES: readonly FileSpec[] = [
+  {
+    url: `${ZHVI_BASE}/County_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv`,
+    metric: 'zhvi_all_homes',
+    unit: 'USD',
+    scope: 'county',
+  },
+  {
+    url: `${ZHVI_BASE}/County_zhvi_uc_sfr_tier_0.33_0.67_sm_sa_month.csv`,
+    metric: 'zhvi_sfh',
+    unit: 'USD',
+    scope: 'county',
+  },
+  {
+    url: `${ZHVI_BASE}/County_zhvi_uc_condo_tier_0.33_0.67_sm_sa_month.csv`,
+    metric: 'zhvi_condo',
+    unit: 'USD',
+    scope: 'county',
+  },
+  {
+    url: `${ZORI_BASE}/County_zori_uc_sfrcondomfr_sm_sa_month.csv`,
+    metric: 'zori_rent',
+    unit: 'USD',
+    scope: 'county',
+  },
+  {
+    url: `${ZHVI_BASE}/Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv`,
+    metric: 'zhvi_all_homes',
+    unit: 'USD',
+    scope: 'metro',
+  },
+];
+
+const DMV_STATE_NAMES = new Set(['District of Columbia', 'Maryland', 'Virginia']);
+const DATE_COL_RE = /^\d{4}-\d{2}-\d{2}$/;
+const DC_METRO_REGION = 'Washington, DC';
+const DC_METRO_FIPS = '47900';
+
 export function buildFipsIndex(): ReadonlyMap<string, string> {
   const map = new Map<string, string>();
   for (const county of DMV_COUNTIES) {
     const key = county.name.toLowerCase();
     map.set(key, county.fips);
-    // Strip " city" suffix so Zillow names without the suffix also resolve
     if (key.endsWith(' city')) {
       map.set(key.slice(0, -5).trimEnd(), county.fips);
     }
-    // Strip " (city)" variant noted in DATA_SOURCES.md §5
     if (key.endsWith(' (city)')) {
       map.set(key.slice(0, -7).trimEnd(), county.fips);
     }
   }
   return map;
 }
-
-const DMV_STATE_NAMES = new Set(['District of Columbia', 'Maryland', 'Virginia']);
-const DATE_COL_RE = /^\d{4}-\d{2}-\d{2}$/;
-const DC_METRO_REGION = 'Washington, DC';
-const DC_METRO_FIPS = '47900';
 
 export function parseRow(
   row: Record<string, string>,
@@ -104,6 +118,44 @@ export class ZillowSource implements DataSource {
   readonly cadence = 'monthly' as const;
 
   async fetch(): Promise<Observation[]> {
-    throw new IngestError('ZillowSource not yet implemented', { source: 'zillow' });
+    const fipsIndex = buildFipsIndex();
+    const all: Observation[] = [];
+
+    for (const spec of FILES) {
+      log.info({ url: spec.url, metric: spec.metric, scope: spec.scope }, 'zillow: fetching');
+      let response: Response;
+      try {
+        response = await fetchWithRetry(spec.url, {
+          label: `zillow:${spec.metric}:${spec.scope}`,
+          timeoutMs: 120_000,
+        });
+      } catch (err) {
+        log.error({ url: spec.url, err: errMessage(err) }, 'zillow: fetch failed; skipping file');
+        continue;
+      }
+
+      const text = await response.text();
+      const rows = parse(text, { columns: true, skip_empty_lines: true }) as Record<string, string>[];
+      let fileObs = 0;
+      for (const row of rows) {
+        const obs = parseRow(row, spec, fipsIndex);
+        all.push(...obs);
+        fileObs += obs.length;
+      }
+      log.info({ metric: spec.metric, scope: spec.scope, count: fileObs }, 'zillow: file done');
+    }
+
+    if (all.length === 0) {
+      log.warn('zillow: zero observations after processing all files');
+    } else {
+      log.info({ count: all.length }, 'zillow: done');
+    }
+
+    return all;
   }
+}
+
+function errMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  return String(err);
 }
