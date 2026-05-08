@@ -23,6 +23,7 @@ import type { MetricId, Observation, Unit } from '@dmv/shared';
 import type { DataSource } from './DataSource.js';
 import { IngestError } from '../lib/errors.js';
 import { DMV_COUNTIES } from '../lib/counties.js';
+import { log } from '../lib/log.js';
 
 export interface FileSpec {
   url: string;
@@ -46,6 +47,54 @@ export function buildFipsIndex(): ReadonlyMap<string, string> {
     }
   }
   return map;
+}
+
+const DMV_STATE_NAMES = new Set(['District of Columbia', 'Maryland', 'Virginia']);
+const DATE_COL_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export function parseRow(
+  row: Record<string, string>,
+  spec: FileSpec,
+  fipsIndex: ReadonlyMap<string, string>,
+): Observation[] {
+  let fips: string;
+  let series: string;
+
+  if (spec.scope === 'metro') {
+    // Metro handled in Task 3
+    return [];
+  }
+
+  // County scope
+  const stateName = row['StateName'] ?? '';
+  if (!DMV_STATE_NAMES.has(stateName)) return [];
+
+  const regionName = (row['RegionName'] ?? '').toLowerCase();
+  const resolved = fipsIndex.get(regionName);
+  if (!resolved) {
+    log.debug({ region: row['RegionName'], state: stateName }, 'zillow: county not in DMV; skipping');
+    return [];
+  }
+  fips = resolved;
+  series = `zillow:county:${spec.metric}`;
+
+  const observations: Observation[] = [];
+  for (const [col, raw] of Object.entries(row)) {
+    if (!DATE_COL_RE.test(col)) continue;
+    if (!raw || raw.trim() === '') continue;
+    const value = Number(raw);
+    if (!Number.isFinite(value)) continue;
+    observations.push({
+      source: 'zillow',
+      series,
+      fips,
+      metric: spec.metric,
+      observedAt: col,
+      value,
+      unit: spec.unit,
+    });
+  }
+  return observations;
 }
 
 export class ZillowSource implements DataSource {
