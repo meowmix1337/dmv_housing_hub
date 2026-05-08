@@ -40,9 +40,15 @@ describe('buildFipsIndex', () => {
 
   it('contains entries for all 21 DMV counties plus stripped-suffix aliases', () => {
     const idx = buildFipsIndex();
-    // 21 primary entries + 6 stripped " city" aliases (Alexandria, Fairfax, Falls Church,
-    // Manassas, Manassas Park, Baltimore)
-    expect(idx.size).toBe(27);
+    // 21 primary entries
+    // + 6 stripped " city" aliases (Alexandria, Fairfax, Falls Church, Manassas, Manassas Park, Baltimore)
+    // + 1 apostrophe-stripped alias (prince georges county)
+    expect(idx.size).toBe(28);
+  });
+
+  it('maps "prince georges county" (no apostrophe, Zillow format) to 24033', () => {
+    const idx = buildFipsIndex();
+    expect(idx.get("prince georges county")).toBe('24033');
   });
 });
 
@@ -59,7 +65,7 @@ function baseCountyRow(overrides: Partial<Record<string, string>> = {}): Record<
     SizeRank: '1',
     RegionName: 'Montgomery County',
     RegionType: 'county',
-    StateName: 'Maryland',
+    StateName: 'MD',
     State: 'MD',
     Metro: 'Washington, DC',
     StateCodeFIPS: '24',
@@ -75,7 +81,7 @@ describe('parseRow - county scope', () => {
   const fipsIndex = buildFipsIndex();
 
   it('skips rows with out-of-DMV StateName', () => {
-    const row = baseCountyRow({ StateName: 'California', RegionName: 'Los Angeles County' });
+    const row = baseCountyRow({ StateName: 'CA', RegionName: 'Los Angeles County' });
     expect(parseRow(row, COUNTY_SPEC, fipsIndex)).toHaveLength(0);
   });
 
@@ -125,7 +131,7 @@ describe('parseRow - county scope', () => {
   it('resolves "District of Columbia" (StateName) to fips 11001', () => {
     const row = baseCountyRow({
       RegionName: 'District of Columbia',
-      StateName: 'District of Columbia',
+      StateName: 'DC',
     });
     const obs = parseRow(row, COUNTY_SPEC, fipsIndex);
     expect(obs.length).toBeGreaterThan(0);

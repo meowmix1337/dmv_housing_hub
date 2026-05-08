@@ -48,7 +48,7 @@ const FILES: readonly FileSpec[] = [
   },
 ];
 
-const DMV_STATE_NAMES = new Set(['District of Columbia', 'Maryland', 'Virginia']);
+const DMV_STATE_NAMES = new Set(['DC', 'MD', 'VA']);
 const DATE_COL_RE = /^\d{4}-\d{2}-\d{2}$/;
 const DC_METRO_REGION = 'Washington, DC';
 const DC_METRO_FIPS = '47900';
@@ -63,6 +63,12 @@ export function buildFipsIndex(): ReadonlyMap<string, string> {
     }
     if (key.endsWith(' (city)')) {
       map.set(key.slice(0, -7).trimEnd(), county.fips);
+    }
+    // Strip apostrophes for Zillow compatibility
+    // (e.g. "Prince George's County" → "prince georges county")
+    const noApostrophe = key.replace(/'/g, '');
+    if (noApostrophe !== key) {
+      map.set(noApostrophe, county.fips);
     }
   }
   return map;
