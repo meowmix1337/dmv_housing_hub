@@ -19,9 +19,37 @@
  *   - County_zori_uc_sfrcondomfr_sm_sa_month.csv              (rent)
  */
 
-import type { Observation } from '@dmv/shared';
+import type { MetricId, Observation, Unit } from '@dmv/shared';
+import { parse } from 'csv-parse/sync';
 import type { DataSource } from './DataSource.js';
 import { IngestError } from '../lib/errors.js';
+import { DMV_COUNTIES } from '../lib/counties.js';
+import { fetchWithRetry } from '../lib/http.js';
+import { log } from '../lib/log.js';
+
+export interface FileSpec {
+  url: string;
+  metric: MetricId;
+  unit: Unit;
+  scope: 'county' | 'metro';
+}
+
+export function buildFipsIndex(): ReadonlyMap<string, string> {
+  const map = new Map<string, string>();
+  for (const county of DMV_COUNTIES) {
+    const key = county.name.toLowerCase();
+    map.set(key, county.fips);
+    // Strip " city" suffix so Zillow names without the suffix also resolve
+    if (key.endsWith(' city')) {
+      map.set(key.slice(0, -5).trimEnd(), county.fips);
+    }
+    // Strip " (city)" variant noted in DATA_SOURCES.md §5
+    if (key.endsWith(' (city)')) {
+      map.set(key.slice(0, -7).trimEnd(), county.fips);
+    }
+  }
+  return map;
+}
 
 export class ZillowSource implements DataSource {
   readonly name = 'zillow';
