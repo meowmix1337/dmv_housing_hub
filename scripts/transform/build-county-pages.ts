@@ -19,23 +19,15 @@ import {
 } from '../lib/paths.js';
 import { DMV_COUNTIES } from '../lib/counties.js';
 
-const ObservationSchema = z.object({
-  source: z.string(),
-  series: z.string(),
-  fips: z.string(),
-  metric: z.string(),
-  observedAt: z.string(),
-  value: z.number(),
-  unit: z.string(),
-});
-
-const CachedRunSchema = z.object({
+// Validate only the metadata envelope — not the observations array.
+// Zod's array parse recurses per-element and overflows the call stack on large caches (e.g. 160K redfin rows).
+// Observations were already validated at ingest time.
+const CachedRunMetaSchema = z.object({
   source: z.string(),
   startedAt: z.string(),
   finishedAt: z.string(),
   durationMs: z.number(),
   count: z.number(),
-  observations: z.array(ObservationSchema),
 });
 
 interface CachedRun {
@@ -53,15 +45,18 @@ async function loadAllObservations(): Promise<{
   observations: Observation[];
   manifest: ManifestSourceEntry[];
 }> {
-  const observations: Observation[] = [];
+  // Collect per-source arrays and flat() at the end — spreading 160K+ items as function
+  // arguments (push(...arr)) overflows the JS call stack.
+  const chunks: Observation[][] = [];
   const manifest: ManifestSourceEntry[] = [];
 
   for (const source of SOURCES) {
     const path = join(CACHE_DIR, `${source}.json`);
     try {
-      const raw = await readJson(path);
-      const cached = CachedRunSchema.parse(raw) as unknown as CachedRun;
-      observations.push(...cached.observations);
+      const raw = await readJson<Record<string, unknown>>(path);
+      const meta = CachedRunMetaSchema.parse(raw);
+      const cached: CachedRun = { ...meta, observations: (raw.observations ?? []) as Observation[] };
+      chunks.push(cached.observations);
       manifest.push({
         name: source,
         lastUpdated: cached.finishedAt,
@@ -80,7 +75,31 @@ async function loadAllObservations(): Promise<{
     }
   }
 
-  return { observations, manifest };
+  const observations = chunks.flat();
+
+  // For Redfin, sort all_residential before property-type-specific rows so the dedup below
+  // keeps the aggregate series rather than an arbitrary property type.
+  observations.sort((a, b) => {
+    if (a.source !== 'redfin' || b.source !== 'redfin') return 0;
+    const aIsAll = a.series.endsWith(':all_residential') ? 0 : 1;
+    const bIsAll = b.series.endsWith(':all_residential') ? 0 : 1;
+    return aIsAll - bIsAll;
+  });
+
+  // Deduplicate by (source, fips, metric, observedAt), keeping the first occurrence.
+  // This collapses Zillow county-row duplicates and Redfin property-type rows (keeping all_residential above).
+  const seen = new Set<string>();
+  const deduplicated = observations.filter((o) => {
+    const key = `${o.source}:${o.fips}:${o.metric}:${o.observedAt}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  if (deduplicated.length !== observations.length) {
+    log.warn({ dropped: observations.length - deduplicated.length }, 'deduplicated observations');
+  }
+
+  return { observations: deduplicated, manifest };
 }
 
 function cadenceFor(source: string): ManifestSourceEntry['cadence'] {
@@ -125,6 +144,9 @@ function buildCountySummary(
   const activeObs = forCounty.filter((o) => o.metric === 'active_listings');
   const monthsSupplyObs = forCounty.filter((o) => o.metric === 'months_supply');
   const unemploymentObs = forCounty.filter((o) => o.metric === 'unemployment_rate');
+  const saleToListObs = forCounty.filter((o) => o.metric === 'sale_to_list_ratio');
+  const pctAboveListObs = forCounty.filter((o) => o.metric === 'pct_sold_above_list');
+  const incomeObs = forCounty.filter((o) => o.metric === 'median_household_income');
 
   const series: CountySeries = {};
   if (fhfaHpiObs.length) series.fhfaHpi = toMetricPoints(fhfaHpiObs);
@@ -178,6 +200,18 @@ function buildCountySummary(
 
   if (unemploymentObs.length) {
     summary.current.unemploymentRate = toMetricPoints(unemploymentObs).at(-1)?.value;
+  }
+
+  if (saleToListObs.length) {
+    summary.current.saleToListRatio = toMetricPoints(saleToListObs).at(-1)?.value;
+  }
+
+  if (pctAboveListObs.length) {
+    summary.current.pctSoldAboveList = toMetricPoints(pctAboveListObs).at(-1)?.value;
+  }
+
+  if (incomeObs.length) {
+    summary.medianHouseholdIncome = toMetricPoints(incomeObs).at(-1)?.value;
   }
 
   return summary;
