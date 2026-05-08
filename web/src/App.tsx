@@ -3,6 +3,8 @@ import { Layout } from './components/Layout.js';
 import { Home } from './pages/Home.js';
 import { County } from './pages/County.js';
 import { Compare } from './pages/Compare.js';
+import { Counties } from './pages/Counties.js';
+import { Methodology } from './pages/Methodology.js';
 
 export function App() {
   return (
@@ -11,6 +13,8 @@ export function App() {
         <Route path="/" element={<Home />} />
         <Route path="/county/:fips" element={<County />} />
         <Route path="/compare" element={<Compare />} />
+        <Route path="/counties" element={<Counties />} />
+        <Route path="/methodology" element={<Methodology />} />
         <Route
           path="*"
           element={
