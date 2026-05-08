@@ -1,0 +1,257 @@
+/* ============================================================
+   Maryland Housing Hub — Design Tokens
+   Solid colors, rounded corners, warm civic palette.
+   ============================================================ */
+
+
+:root {
+  /* ---------- COLOR — base palette ---------- */
+
+  /* Primary — Crab Red (Maryland flag, dialed back) */
+  --crab-50:  #FBEEF0;
+  --crab-100: #F4D2D7;
+  --crab-200: #E8A4AE;
+  --crab-300: #D87381;
+  --crab-400: #BE4A5C;
+  --crab-500: #A4243B;   /* PRIMARY */
+  --crab-600: #8B1A2F;
+  --crab-700: #6E1424;
+  --crab-800: #4F0E1A;
+  --crab-900: #320811;
+
+  /* Secondary — Old Bay Gold */
+  --gold-50:  #FBF5E0;
+  --gold-100: #F5E7A8;
+  --gold-200: #EAD174;
+  --gold-300: #DCBC4C;
+  --gold-400: #C9A227;
+  --gold-500: #A8851D;
+  --gold-600: #836715;
+  --gold-700: #5E4A0F;
+
+  /* Warm neutrals (paper-toned) */
+  --paper-50:  #FDFBF7;
+  --paper-100: #FBF8F3;   /* page background */
+  --paper-200: #F4EFE5;
+  --paper-300: #E7E2D8;   /* default border */
+  --paper-400: #C9C2B4;
+  --paper-500: #9A9384;
+  --paper-600: #6B6557;
+  --paper-700: #4A4538;
+  --paper-800: #2F2B22;
+  --paper-900: #1C1A14;
+
+  /* Brown-black (deep base) */
+  --ink-900: #2B201A;     /* near-black with brown warmth */
+
+  /* Semantic — status only, never brand */
+  --green-50:  #E5F1E8;
+  --green-500: #2E7D4F;
+  --green-700: #1F5836;
+  --amber-50:  #FCF1DC;
+  --amber-500: #B07A0E;
+  --amber-700: #7E5408;
+  --red-50:    #FCE8EA;
+  --red-500:   #B83344;
+  --red-700:   #871F2C;
+  --blue-50:   #E4EEF7;
+  --blue-500:  #275B92;
+  --blue-700:  #1B4067;
+
+  /* ---------- COLOR — semantic ---------- */
+  --primary:        var(--crab-500);
+  --primary-hover:  var(--crab-600);
+  --primary-press:  var(--crab-700);
+  --primary-soft:   var(--crab-50);
+  --on-primary:     #FFFFFF;
+
+  --accent:         var(--gold-400);
+  --accent-soft:    var(--gold-50);
+
+  --bg-paper:       var(--paper-100);
+  --bg-deep:        var(--ink-900);
+  --bg-soft:        var(--paper-200);
+
+  --surface-1:      #FFFFFF;
+  --surface-2:      var(--paper-50);
+  --surface-inverse: var(--ink-900);
+
+  --fg-1:           var(--paper-900);  /* primary text */
+  --fg-2:           var(--paper-700);  /* secondary text */
+  --fg-3:           var(--paper-600);  /* tertiary, captions */
+  --fg-disabled:    var(--paper-500);
+  --fg-on-deep:     var(--paper-100);
+  --fg-on-deep-2:   var(--paper-300);
+
+  --border-soft:    var(--paper-300);
+  --border-strong:  var(--paper-400);
+  --border-inverse: var(--paper-700);
+
+  --ring:           var(--gold-400);
+
+  /* Category accents (for left-edge card stripes) */
+  --cat-rental:     #2E7D4F;
+  --cat-ownership:  #275B92;
+  --cat-legal:      #A4243B;
+  --cat-senior:     #7E4A8E;
+  --cat-emergency:  #B07A0E;
+
+  /* Status semantic */
+  --success-bg: var(--green-50);
+  --success-fg: var(--green-700);
+  --success:    var(--green-500);
+  --warning-bg: var(--amber-50);
+  --warning-fg: var(--amber-700);
+  --warning:    var(--amber-500);
+  --danger-bg:  var(--red-50);
+  --danger-fg:  var(--red-700);
+  --danger:     var(--red-500);
+  --info-bg:    var(--blue-50);
+  --info-fg:    var(--blue-700);
+  --info:       var(--blue-500);
+
+  /* ---------- TYPE — families ---------- */
+  --font-display: "Source Serif 4", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  --font-body:    "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Type scale (rems, 16px base) */
+  --fs-display-xl: 4.5rem;   /* 72 */
+  --fs-display-lg: 3.5rem;   /* 56 */
+  --fs-display-md: 2.625rem; /* 42 */
+  --fs-h1: 2rem;             /* 32 */
+  --fs-h2: 1.625rem;         /* 26 */
+  --fs-h3: 1.25rem;          /* 20 */
+  --fs-h4: 1.0625rem;        /* 17 */
+  --fs-body: 1rem;           /* 16 */
+  --fs-small: 0.875rem;      /* 14 */
+  --fs-xs: 0.75rem;          /* 12 */
+
+  --lh-tight: 1.15;
+  --lh-display: 1.2;
+  --lh-snug: 1.35;
+  --lh-body: 1.55;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* ---------- SPACING ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 64px;
+  --space-11: 80px;
+  --space-12: 96px;
+
+  /* ---------- RADII ---------- */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;   /* buttons */
+  --radius-lg: 16px;   /* cards */
+  --radius-xl: 24px;   /* hero / modal */
+  --radius-pill: 999px;
+
+  /* ---------- SHADOWS ---------- */
+  --shadow-1: 0 1px 2px rgba(43, 32, 26, 0.06), 0 1px 1px rgba(43, 32, 26, 0.04);
+  --shadow-2: 0 4px 12px rgba(43, 32, 26, 0.08), 0 2px 4px rgba(43, 32, 26, 0.04);
+  --shadow-3: 0 16px 40px rgba(43, 32, 26, 0.12), 0 4px 12px rgba(43, 32, 26, 0.06);
+  --shadow-focus: 0 0 0 3px rgba(201, 162, 39, 0.4);
+
+  /* ---------- LAYOUT ---------- */
+  --container-max: 1200px;
+  --reading-max: 680px;
+  --header-h: 64px;
+
+  /* ---------- MOTION ---------- */
+  --t-fast: 150ms ease-out;
+  --t-base: 200ms ease-in-out;
+  --t-slow: 300ms ease;
+}
+
+/* ============================================================
+   Semantic element styles — apply these globally
+   ============================================================ */
+
+html, body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--fg-1);
+  background: var(--bg-paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  color: var(--fg-1);
+  letter-spacing: -0.01em;
+  line-height: var(--lh-display);
+  margin: 0;
+  font-weight: var(--fw-semibold);
+  text-wrap: balance;
+}
+
+h1 { font-size: var(--fs-h1); line-height: var(--lh-tight); }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); font-family: var(--font-body); font-weight: var(--fw-semibold); }
+h4 { font-size: var(--fs-h4); font-family: var(--font-body); font-weight: var(--fw-semibold); }
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+  max-width: var(--reading-max);
+}
+
+small { font-size: var(--fs-small); color: var(--fg-2); }
+
+code, kbd, pre, samp {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--t-fast);
+}
+a:hover { text-decoration: underline; }
+a:visited { color: #6E2A55; }
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--radius-xs);
+}
+
+/* Display utility classes */
+.display-xl { font-family: var(--font-display); font-size: var(--fs-display-xl); line-height: var(--lh-display); font-weight: 600; letter-spacing: -0.02em; }
+.display-lg { font-family: var(--font-display); font-size: var(--fs-display-lg); line-height: var(--lh-display); font-weight: 600; letter-spacing: -0.02em; }
+.display-md { font-family: var(--font-display); font-size: var(--fs-display-md); line-height: var(--lh-display); font-weight: 600; letter-spacing: -0.01em; }
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+
+.caption { font-size: var(--fs-small); color: var(--fg-3); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

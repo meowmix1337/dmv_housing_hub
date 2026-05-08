@@ -100,7 +100,7 @@ Three families. Loaded once via Google Fonts `<link>` in `tokens.css`.
 - **Card padding:** 24px (`--space-6`) all sides; 20px on dense cards (metric strip).
 - **Card gap inside grids:** 16px (`--space-4`).
 - **Section vertical rhythm:** 64–96px (`--space-10`–`--space-12`) between major sections.
-- **Page gutter:** 32px on desktop, 16px on mobile. `Container` is max 1200px.
+- **Page gutter:** 32px on desktop, 16px on mobile. `Container` is max 1280px.
 - **Form/control gaps:** 8–12px between inline controls; 16px between vertical fields.
 
 **Radii**
@@ -124,7 +124,7 @@ We did **not** use card shadows on the chart containers; a `1px` border in `--bo
 
 ### Container
 ```jsx
-<Container>{/* max 1200, 32px gutter */}</Container>
+<Container>{/* max 1280, 32px gutter */}</Container>
 ```
 Every full-width section wraps in `Container`. Hero and footer have their own coloured strip outside the container.
 
