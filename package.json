@@ -17,7 +17,8 @@
     "build": "npm run build --workspace=shared && npm run build --workspace=web",
     "dev": "npm run dev --workspace=web",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "lint": "eslint . --ext .ts,.tsx",
+    "lint": "eslint .",
+    "check-bundle-size": "tsx scripts/check-bundle-size.ts",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "ingest": "npm run ingest --workspace=scripts",
     "transform": "npm run transform --workspace=scripts",
@@ -28,7 +29,10 @@
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "prettier": "^3.3.0",
-    "typescript": "^5.5.0"
+    "typescript": "^5.5.0",
+    "typescript-eslint": "^8.59.2"
   }
 }
