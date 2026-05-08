@@ -3,6 +3,8 @@ node_modules/
 .pnp
 .pnp.js
 
+docs/crispy/*
+
 # Build outputs
 dist/
 build/
