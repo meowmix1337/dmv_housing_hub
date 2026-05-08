@@ -1,9 +1,15 @@
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { getCountySummary } from '../api.js';
-import { PriceChart } from '../components/PriceChart.js';
-import { MetricCard } from '../components/MetricCard.js';
-import { formatCurrency, formatDate, formatPercent } from '../lib/format.js';
+import { useQuery, useQueries } from '@tanstack/react-query';
+import { getCountySummary, getMortgageRates } from '../api.js';
+import { DMV_FIPS } from '../lib/fips.js';
+import { CountyHeader } from '../components/county/CountyHeader.js';
+import { SnapshotGrid } from '../components/county/SnapshotGrid.js';
+import { BigChart } from '../components/county/BigChart.js';
+import { Affordability } from '../components/county/Affordability.js';
+import { MarketHealthBreakdown } from '../components/county/MarketHealthBreakdown.js';
+import { ForecastCone } from '../components/county/ForecastCone.js';
+import { FederalExposure } from '../components/county/FederalExposure.js';
+import { Container } from '../components/Container.js';
 
 export function County() {
   const { fips } = useParams<{ fips: string }>();
@@ -17,77 +23,54 @@ export function County() {
     enabled: Boolean(fips),
   });
 
-  if (!fips) return <div className="text-neutral-500">Missing FIPS</div>;
-  if (isLoading) return <div className="text-neutral-500">Loading…</div>;
-  if (error)
-    return (
-      <div className="text-red-600">
-        Failed to load: {error instanceof Error ? error.message : 'unknown'}
-      </div>
-    );
-  if (!data) return <div className="text-neutral-500">No data</div>;
+  const allCountyResults = useQueries({
+    queries: DMV_FIPS.map((f) => ({
+      queryKey: ['county', f] as const,
+      queryFn: () => getCountySummary(f),
+    })),
+  });
 
-  const { current, series } = data;
+  const mortgageResult = useQuery({
+    queryKey: ['mortgage-rates'] as const,
+    queryFn: getMortgageRates,
+  });
+
+  const allCounties = allCountyResults.map((r) => r.data).filter((d) => d !== undefined);
+  const mortgageRate = mortgageResult.data?.points?.at(-1)?.value
+    ? (mortgageResult.data.points.at(-1)!.value / 100)
+    : undefined;
+
+  if (!fips) return <div className="p-8 text-fg-3">Missing FIPS</div>;
+  if (isLoading) return <div className="p-8 text-fg-3">Loading…</div>;
+  if (error) return <div className="p-8 text-red-500">Failed to load county data.</div>;
+  if (!data) return <div className="p-8 text-fg-3">No data</div>;
 
   return (
-    <div className="space-y-8">
-      <section>
-        <h1 className="text-2xl font-semibold tracking-tight">{data.name}</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Last updated {formatDate(data.lastUpdated)}
-        </p>
-      </section>
+    <div className="bg-bg-paper min-h-screen">
+      <CountyHeader county={data} />
 
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          label="Typical home value (ZHVI)"
-          value={current.zhvi !== undefined ? formatCurrency(current.zhvi) : '—'}
-          delta={current.zhviYoY !== undefined ? formatPercent(current.zhviYoY) : undefined}
-          deltaLabel="YoY"
-        />
-        <MetricCard
-          label="Median sale price"
-          value={
-            current.medianSalePrice !== undefined ? formatCurrency(current.medianSalePrice) : '—'
-          }
-          delta={
-            current.medianSalePriceYoY !== undefined
-              ? formatPercent(current.medianSalePriceYoY)
-              : undefined
-          }
-          deltaLabel="YoY"
-        />
-        <MetricCard
-          label="Days on market"
-          value={current.daysOnMarket !== undefined ? `${current.daysOnMarket}` : '—'}
-        />
-        <MetricCard
-          label="Months of supply"
-          value={current.monthsSupply !== undefined ? current.monthsSupply.toFixed(1) : '—'}
-        />
-      </section>
+      <Container className="mt-8">
+        <SnapshotGrid county={data} />
+      </Container>
 
-      {series.fhfaHpi && series.fhfaHpi.length > 0 && (
-        <section className="rounded-lg border border-neutral-200 bg-white p-6">
-          <h2 className="font-medium">FHFA House Price Index — historical</h2>
-          <p className="text-xs text-neutral-500 mt-1">
-            Source: U.S. Federal Housing Finance Agency, via FRED
-          </p>
-          <div className="mt-4">
-            <PriceChart data={series.fhfaHpi} unit="index" cadence="annual" />
-          </div>
-        </section>
-      )}
+      <Container className="mt-16">
+        <BigChart county={data} allCounties={allCounties} />
+      </Container>
 
-      {series.zhvi && series.zhvi.length > 0 && (
-        <section className="rounded-lg border border-neutral-200 bg-white p-6">
-          <h2 className="font-medium">Zillow Home Value Index — typical home value</h2>
-          <p className="text-xs text-neutral-500 mt-1">Source: Zillow Research</p>
-          <div className="mt-4">
-            <PriceChart data={series.zhvi} unit="USD" />
-          </div>
-        </section>
-      )}
+      <Container className="mt-16">
+        <div className="grid gap-8" style={{ gridTemplateColumns: '1.2fr 1fr' }}>
+          <Affordability county={data} defaultMortgageRate={mortgageRate} />
+          <MarketHealthBreakdown county={data} />
+        </div>
+      </Container>
+
+      <Container className="mt-16">
+        <ForecastCone />
+      </Container>
+
+      <Container className="mt-16 mb-24">
+        <FederalExposure />
+      </Container>
     </div>
   );
 }
