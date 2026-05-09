@@ -14,6 +14,8 @@ function computeSubScores(current: CountySummary['current']): SubScore[] | null 
     subs.push({ label: 'Sale-to-list ratio', score: clamp(60 + (1 - (1 - current.saleToListRatio) * 50) * 0.4, 0, 100), weight: 25 });
   if (current.pctSoldAboveList !== undefined)
     subs.push({ label: '% sold above list', score: clamp(current.pctSoldAboveList * 200, 0, 100), weight: 20 });
+  if (current.activeListingsYoY !== undefined)
+    subs.push({ label: 'Inventory YoY', score: clamp(70 - current.activeListingsYoY * 100, 0, 100), weight: 25 });
   return subs.length >= 2 ? subs : null;
 }
 
@@ -78,7 +80,7 @@ export function MarketHealthBreakdown({ county }: MarketHealthBreakdownProps) {
           ))}
         </div>
       )}
-      <p className="text-xs text-fg-3 mt-auto">Composite score · supply, sale-to-list, above-list %</p>
+      <p className="text-xs text-fg-3 mt-auto">Composite score · supply, sale-to-list, above-list %, inventory YoY</p>
     </div>
   );
 }

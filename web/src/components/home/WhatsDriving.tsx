@@ -1,16 +1,18 @@
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
-import type { MetricSeries } from '@dmv/shared';
+import type { ActiveListingsDmv, MetricSeries } from '@dmv/shared';
 import type { FederalEmploymentDmv } from '../../api.js';
 import { SectionHeader } from '../SectionHeader.js';
 import { Card } from '../Card.js';
 import { DriverCard } from './DriverCard.js';
+import { InventoryChart } from './InventoryChart.js';
 import { formatNumber, formatPercent } from '../../lib/format.js';
 
 interface WhatsDrivingProps {
   mortgageRates: MetricSeries;
   fedEmployment?: FederalEmploymentDmv | undefined;
+  inventory?: ActiveListingsDmv | undefined;
 }
 
 function FedEmploymentChart({ data }: { data: FederalEmploymentDmv }) {
@@ -112,7 +114,7 @@ function MortgageChart({ series }: { series: MetricSeries }) {
   );
 }
 
-export function WhatsDriving({ mortgageRates, fedEmployment }: WhatsDrivingProps) {
+export function WhatsDriving({ mortgageRates, fedEmployment, inventory }: WhatsDrivingProps) {
   return (
     <div>
       <SectionHeader
@@ -135,16 +137,19 @@ export function WhatsDriving({ mortgageRates, fedEmployment }: WhatsDrivingProps
           </Card>
         )}
         <MortgageChart series={mortgageRates} />
-        <Card padding="none" className="p-6 flex flex-col gap-3.5">
-          <div className="eyebrow text-fg-3">Active inventory</div>
-          <h3 className="font-display text-[22px] font-semibold tracking-tight leading-snug">
-            Regional inventory chart coming soon
-          </h3>
-          <p className="text-sm text-fg-2 leading-snug">
-            County-level active listings are tracked. A regional aggregate time series will be
-            added in a future update.
-          </p>
-        </Card>
+        {inventory ? (
+          <InventoryChart data={inventory} />
+        ) : (
+          <Card padding="none" className="p-6 flex flex-col gap-3.5">
+            <div className="eyebrow text-fg-3">Active inventory</div>
+            <h3 className="font-display text-[22px] font-semibold tracking-tight leading-snug">
+              Inventory data unavailable
+            </h3>
+            <p className="text-sm text-fg-2 leading-snug">
+              Refresh, or check back after the next ingest.
+            </p>
+          </Card>
+        )}
         <Card padding="none" className="p-6 flex flex-col gap-3.5">
           <div className="eyebrow text-fg-3">County affordability split</div>
           <h3 className="font-display text-[22px] font-semibold tracking-tight leading-snug">

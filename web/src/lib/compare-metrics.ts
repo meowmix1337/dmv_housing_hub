@@ -1,7 +1,16 @@
-import type { CountySeries, CountySummary } from '@dmv/shared';
+import type { CountySeries, CountySummary, MetricPoint } from '@dmv/shared';
 import { formatCurrency } from './format.js';
 
 export type CompareMetricId = 'zhvi' | 'medianSalePrice' | 'daysOnMarket' | 'monthsSupply' | 'marketHealthScore' | 'affordabilityIndex';
+
+/**
+ * Compare-page series keys are restricted to flat `MetricPoint[]` fields on
+ * `CountySeries` — the structured `activeListings` breakdown is rendered on
+ * the Home and County pages instead, not as a multi-county overlay.
+ */
+export type FlatSeriesKey = {
+  [K in keyof CountySeries]: NonNullable<CountySeries[K]> extends MetricPoint[] ? K : never
+}[keyof CountySeries];
 
 export interface CompareMetric {
   id: CompareMetricId;
@@ -9,7 +18,7 @@ export interface CompareMetric {
   format: (v: number) => string;
   get: (c: CountySummary) => number | undefined;
   higherIsBetter: boolean;
-  seriesKey?: keyof CountySeries;
+  seriesKey?: FlatSeriesKey;
   chartTitle?: string;
   chartSource?: string;
 }
