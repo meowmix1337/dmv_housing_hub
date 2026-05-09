@@ -52,11 +52,7 @@ Build a static, single-page web app that:
 ```
 dmv-housing-app/
 ├── .github/workflows/
-│   ├── ingest-daily.yml
-│   ├── ingest-weekly.yml
-│   ├── ingest-monthly.yml
-│   ├── ingest-quarterly.yml
-│   └── ingest-annual.yml
+│   └── ingest.yml                  # single monthly ingest + transform + commit
 ├── scripts/
 │   ├── package.json
 │   ├── tsconfig.json
@@ -200,7 +196,7 @@ Each step is independently verifiable. Don't proceed to the next until the previ
 - `bls.ts` — county unemployment rate (LAUS), federal employment for the metro
 - `zillow.ts` — ZHVI all-homes mid-tier monthly CSV, ZORI smoothed monthly CSV
 - `redfin.ts` — weekly county-level TSV (filter to `state_code IN ('DC','MD','VA')`)
-- For each, add a row to the appropriate workflow YAML
+- Register the source in `scripts/ingest/run.ts` `REGISTRY` — `ingest.yml` runs `--all`, so new sources are picked up automatically
 
 ### Step 10: Derived metrics
 - `compute-affordability.ts`: P&I + tax + insurance for median home at current 30-yr rate, ÷ median household income
@@ -213,9 +209,9 @@ Each step is independently verifiable. Don't proceed to the next until the previ
 - `ForecastFan.tsx`: cone-of-uncertainty for 2026 forecasts (Bright MLS, Zillow, NAR)
 
 ### Step 12: GitHub Actions wiring
-- Implement all five workflow YAMLs (provided below)
-- Set repo secrets: `FRED_API_KEY`, `CENSUS_API_KEY`, `BLS_API_KEY`
-- Run `workflow_dispatch` manually to verify each one commits valid JSON
+- Implement `ingest.yml` (single monthly workflow that runs every source, transforms, and commits)
+- Set environment secrets in the `production` environment: `FRED_API_KEY`, `CENSUS_API_KEY`, `BLS_API_KEY`
+- Run `workflow_dispatch` manually to verify it commits valid JSON
 
 ### Step 13: Cloudflare Pages deploy
 - Connect repo to Cloudflare Pages
@@ -381,11 +377,11 @@ export interface Manifest {
 
 ## GitHub Actions workflows (provided)
 
-See `.github/workflows/*.yml` files in this scaffold for the exact YAML.
+See `.github/workflows/ingest.yml` for the exact YAML.
 
-The pattern: each workflow checks out the repo, installs deps, runs the appropriate ingesters and transforms, then commits any changes in `web/public/data/`. The push triggers Cloudflare Pages to redeploy.
+The pattern: a single monthly workflow checks out the repo, installs deps, runs every ingester, transforms, then commits any changes in `web/public/data/`. The push triggers Cloudflare Pages to redeploy. A shared concurrency group (`data-commit`) plus a pull-rebase-retry on push prevents races with manual commits.
 
-Required secrets (Settings → Secrets → Actions):
+Required secrets (Settings → Environments → `production` → Environment secrets):
 - `FRED_API_KEY` — get free at https://fred.stlouisfed.org/docs/api/api_key.html
 - `CENSUS_API_KEY` — get free at https://api.census.gov/data/key_signup.html
 - `BLS_API_KEY` — get free at https://data.bls.gov/registrationEngine/
@@ -448,7 +444,7 @@ Add a script `scripts/prep-geojson.ts` that does this so the file is reproducibl
 ## Definition of done for v1
 
 - [ ] All 21 DMV jurisdictions have a JSON file under `web/public/data/counties/`
-- [ ] All five GitHub Actions workflows run green on `workflow_dispatch`
+- [ ] `ingest.yml` runs green on `workflow_dispatch`
 - [ ] At least three real data sources are ingesting (FRED + Freddie Mac + Census minimum)
 - [ ] Home page shows DMV choropleth colored by FHFA HPI YoY
 - [ ] County page shows price chart, market health gauge, current-conditions card, affordability calculator
