@@ -44,7 +44,7 @@ CENSUS_API_KEY=...
 BLS_API_KEY=...
 ```
 
-For deployment, add the same three as **GitHub repo secrets** at Settings → Secrets and variables → Actions.
+For deployment, add the same three as **environment secrets** to a GitHub environment named `production` (Settings → Environments → New environment). The `ingest.yml` workflow declares `environment: production`, so it can read them at run time.
 
 ## Architecture in one paragraph
 
@@ -63,16 +63,18 @@ GitHub Actions runs ingest scripts on cron. Each script fetches from a free publ
 
 ## Data refresh schedule
 
-| Source | Cadence | Workflow |
-|---|---|---|
-| Freddie Mac mortgage rates | Weekly (Thu) | `ingest-weekly.yml` |
-| Redfin market metrics | Weekly (Wed) | `ingest-weekly.yml` |
-| Zillow ZHVI / ZORI | Monthly | `ingest-monthly.yml` |
-| Realtor.com hotness (via FRED) | Monthly | `ingest-monthly.yml` |
-| BLS unemployment | Monthly | `ingest-monthly.yml` |
-| FHFA state HPI | Quarterly | `ingest-quarterly.yml` |
-| FHFA county HPI | Annual | `ingest-annual.yml` |
-| Census ACS | Annual | `ingest-annual.yml` |
+A single workflow (`.github/workflows/ingest.yml`) runs monthly (5th at 14:00 UTC), ingests every source, transforms, and commits. Upstream cadences vary — see `DATA_SOURCES.md`.
+
+| Source | Upstream cadence |
+|---|---|
+| Freddie Mac mortgage rates | Weekly (Thu) |
+| Redfin market metrics | Weekly (Wed) |
+| Zillow ZHVI / ZORI | Monthly |
+| Realtor.com hotness (via FRED) | Monthly |
+| BLS unemployment | Monthly |
+| FHFA state HPI | Quarterly |
+| FHFA county HPI | Annual |
+| Census ACS | Annual |
 
 ## Deployment
 

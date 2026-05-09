@@ -63,17 +63,18 @@ Recharts is declarative, TypeScript-typed, ~90 KB gzipped, and covers line/area/
 MapLibre is the open-source Mapbox fork — same API, no account required, free OSM tiles work out of the box.
 
 ### D6: GitHub Actions for ingestion
-**Chosen**: GitHub Actions on cron schedules.
+**Chosen**: A single monthly GitHub Actions workflow (`ingest.yml`) that runs every source, transforms, and commits.
 
 **Rejected**:
 - A Node cron daemon on a VM: requires a VM.
 - Cloudflare Workers Cron Triggers: free, but 10ms CPU limit per invocation makes the larger ingests (Redfin TSVs, Census ACS bulk) impractical without complicated chunking.
 - Lambda + EventBridge: works, but ties us to AWS and complicates secrets/logging.
+- Per-cadence workflows (weekly/monthly/quarterly/annual, one per source): rejected after a brief experiment. Source caches under `scripts/.cache/` are gitignored, so a workflow that only ingests one source then runs the transform produces a CountySummary missing every other source's fields, churning the committed JSON. Running every source in a single workflow keeps every cache present at transform time.
 
 GitHub Actions gives us 2,000 minutes/month free (unlimited on public repos), real shell access, easy secrets, and the same place our code lives. The workflow that fetches data is a few lines of YAML.
 
 ### D7: Commit data back to the repo
-**Chosen**: Each ingest workflow commits the regenerated JSON to `main`, which triggers a Cloudflare Pages redeploy.
+**Chosen**: The ingest workflow commits the regenerated JSON to `main`, which triggers a Cloudflare Pages redeploy.
 
 **Why**:
 - Full audit trail: every data refresh is a diffable commit.
@@ -120,7 +121,7 @@ If we ever add user-visible business logic (e.g., affordability calculator math)
 
 ## Things that are tempting but wrong for this app
 
-- **"Let's add a real-time websocket for live mortgage rates."** Mortgage rates update once a week. The Freddie Mac PMMS literally publishes Thursdays at 10am ET. A static daily refresh is correct.
+- **"Let's add a real-time websocket for live mortgage rates."** Mortgage rates update once a week. The Freddie Mac PMMS literally publishes Thursdays at 10am ET. A static periodic refresh is correct.
 - **"Let's add a database for flexibility."** What query do you want to run that you can't run at build time? If the answer is "I don't know yet," that's a v2 problem.
 - **"Let's use Next.js so we can add SSR later."** YAGNI. Migration from Vite SPA to Next.js is a one-day job if and when we ever need SSR.
 - **"Let's add user accounts so people can save favorite counties."** That's a real feature, but it's v3. Browser localStorage handles "remember last viewed county" for v1.

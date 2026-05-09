@@ -82,7 +82,7 @@ export function Methodology() {
           <Section title="Pipeline architecture">
             <p className="mb-3">
               There is no runtime backend. Data is precomputed by a GitHub Actions workflow on a
-              weekly cadence, committed as static JSON files, and served directly from Cloudflare
+              monthly cadence, committed as static JSON files, and served directly from Cloudflare
               Pages. Each county page fetches a single JSON file on load.
             </p>
             <p>

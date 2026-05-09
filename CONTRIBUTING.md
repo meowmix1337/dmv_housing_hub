@@ -118,7 +118,7 @@ npm run transform --workspace=scripts
 
 Verify Montgomery County's `medianHouseholdIncome` is now populated in `24031.json`.
 
-Add `npm run ingest:census` to `.github/workflows/ingest-annual.yml` (uncomment the line).
+No workflow change needed — `ingest.yml` runs `npm run ingest -- --all`, which picks up every source registered in `scripts/ingest/run.ts`.
 
 ---
 
@@ -128,7 +128,7 @@ Implement `scripts/ingest/bls.ts` per `DATA_SOURCES.md` §4. Pulls:
 - LAUS county unemployment rates for all 21 DMV counties
 - DMV metro federal employment series (`SMU11479009091000001`)
 
-Add to monthly workflow.
+Register in `scripts/ingest/run.ts` `REGISTRY` — the monthly `ingest.yml` picks it up automatically.
 
 ---
 
@@ -136,7 +136,7 @@ Add to monthly workflow.
 
 Implement `scripts/ingest/zillow.ts` per `DATA_SOURCES.md` §5. CSVs are wide-format; transpose. Resolve `RegionName` → FIPS via `DMV_COUNTIES`.
 
-Add to monthly workflow.
+Register in `scripts/ingest/run.ts` `REGISTRY` — the monthly `ingest.yml` picks it up automatically.
 
 ---
 
@@ -144,7 +144,7 @@ Add to monthly workflow.
 
 Implement `scripts/ingest/redfin.ts` per `DATA_SOURCES.md` §6. Most involved ingester — gzipped TSVs, ~7M rows nationally, filter by `state_code` early.
 
-Add to weekly workflow.
+Register in `scripts/ingest/run.ts` `REGISTRY` — the monthly `ingest.yml` picks it up automatically.
 
 ---
 
@@ -183,9 +183,9 @@ Wire both into `build-county-pages.ts` so they populate `current.affordabilityIn
 ## Step 12 — Wire GitHub Actions (step 12)
 
 1. Push to GitHub (public repo for unlimited Actions minutes).
-2. Add repo secrets: `FRED_API_KEY`, `CENSUS_API_KEY`, `BLS_API_KEY`.
-3. Manually trigger each workflow via Actions tab → workflow_dispatch.
-4. Verify each commits valid JSON to `web/public/data/`.
+2. Create a `production` environment (Settings → Environments → New environment) and add secrets there: `FRED_API_KEY`, `CENSUS_API_KEY`, `BLS_API_KEY`. The `ingest.yml` job declares `environment: production` so it can read them.
+3. Manually trigger `ingest.yml` via Actions tab → workflow_dispatch.
+4. Verify it commits valid JSON to `web/public/data/`.
 
 ---
 
@@ -206,7 +206,7 @@ Push to `main`. Site is live in ~60 seconds.
 ## Verification: v1 done
 
 - [ ] All 21 DMV jurisdictions have a JSON file under `web/public/data/counties/`
-- [ ] All five GitHub Actions workflows run green on `workflow_dispatch`
+- [ ] `ingest.yml` runs green on `workflow_dispatch`
 - [ ] At least three real data sources are ingesting (FRED + Census + BLS minimum)
 - [ ] Home page shows the DMV choropleth colored by FHFA HPI YoY
 - [ ] County page shows price chart, market health gauge, current-conditions card, affordability calculator

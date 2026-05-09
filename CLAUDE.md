@@ -33,7 +33,7 @@ npm run transform --workspace=scripts        # join raw cache → per-county JSO
 FRED_API_KEY=xxx npm run ingest:fred --workspace=scripts
 ```
 
-Required environment variables for ingestion (stored as GitHub Actions secrets for CI):
+Required environment variables for ingestion (stored as GitHub Actions environment secrets in the `production` environment for CI):
 - `FRED_API_KEY` — free at https://fred.stlouisfed.org/docs/api/api_key.html
 - `CENSUS_API_KEY` — free at https://api.census.gov/data/key_signup.html
 - `BLS_API_KEY` — free at https://data.bls.gov/registrationEngine/
@@ -53,8 +53,8 @@ web/        React + Vite SPA (static output, deployed to Cloudflare Pages)
 ### Data flow
 
 ```
-GitHub Actions cron
-  → scripts/ingest/run.ts --source=<name>
+GitHub Actions cron (.github/workflows/ingest.yml — single monthly run)
+  → scripts/ingest/run.ts --all
   → scripts/.cache/{source}.json          ← raw Observation[] dump (gitignored)
   → scripts/transform/build-county-pages.ts
   → web/public/data/counties/{fips}.json  ← CountySummary (committed to repo)
