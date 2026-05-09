@@ -2,6 +2,9 @@ import 'dotenv/config';
 import { join } from 'node:path';
 import { z } from 'zod';
 import type {
+  ActiveListingsBreakdown,
+  ActiveListingsByType,
+  ActiveListingsDmv,
   CountySeries,
   CountySummary,
   Manifest,
@@ -82,7 +85,7 @@ async function loadAllObservations(): Promise<{
   const observations = chunks.flat();
 
   // For Redfin, sort all_residential before property-type-specific rows so the dedup below
-  // keeps the aggregate series rather than an arbitrary property type.
+  // keeps the aggregate series for non-breakdown metrics.
   observations.sort((a, b) => {
     if (a.source !== 'redfin' || b.source !== 'redfin') return 0;
     const aIsAll = a.series.endsWith(':all_residential') ? 0 : 1;
@@ -90,11 +93,16 @@ async function loadAllObservations(): Promise<{
     return aIsAll - bIsAll;
   });
 
-  // Deduplicate by (source, fips, metric, observedAt), keeping the first occurrence.
-  // This collapses Zillow county-row duplicates and Redfin property-type rows (keeping all_residential above).
+  // Dedupe by (source, fips, metric, observedAt). Redfin's `active_listings` is
+  // exempt — we additionally key on `series` so all four property-type rows
+  // survive (consumed by buildActiveListingsBreakdown). Every other Redfin
+  // metric collapses to a single `all_residential` row per date thanks to the
+  // sort above.
   const seen = new Set<string>();
   const deduplicated = observations.filter((o) => {
-    const key = `${o.source}:${o.fips}:${o.metric}:${o.observedAt}`;
+    const key = o.source === 'redfin' && o.metric === 'active_listings'
+      ? `${o.source}:${o.series}:${o.fips}:${o.metric}:${o.observedAt}`
+      : `${o.source}:${o.fips}:${o.metric}:${o.observedAt}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -104,6 +112,64 @@ async function loadAllObservations(): Promise<{
   }
 
   return { observations: deduplicated, manifest };
+}
+
+const PROPERTY_TYPES = ['single_family', 'condo', 'townhouse', 'multi_family'] as const;
+type PropertyType = (typeof PROPERTY_TYPES)[number];
+
+/**
+ * Property types that gate emission of a date. Single-family, condo, and
+ * townhouse are present in essentially every county/month combination Redfin
+ * reports; multi-family is intermittent (rural counties often have no
+ * multi-family activity at all). Treat missing multi-family rows as zero
+ * rather than skipping the whole month.
+ */
+const REQUIRED_TYPES = ['single_family', 'condo', 'townhouse'] as const;
+
+/**
+ * Build a per-property-type active-listings breakdown for one county.
+ * Total at each date = SFH + condo + townhouse + multi_family. Multi-family
+ * defaults to 0 when Redfin omits the row (equivalent to "zero listings of
+ * that type that month"). Dates where any required type is missing are
+ * dropped.
+ */
+export function buildActiveListingsBreakdown(
+  forCounty: Observation[],
+): ActiveListingsBreakdown | undefined {
+  const valuesByDate: Record<PropertyType, Map<string, number>> = {
+    single_family: new Map(), condo: new Map(),
+    townhouse: new Map(), multi_family: new Map(),
+  };
+  for (const t of PROPERTY_TYPES) {
+    const seriesId = `redfin:county:${t}`;
+    for (const o of forCounty) {
+      if (o.metric === 'active_listings' && o.series === seriesId) {
+        valuesByDate[t].set(o.observedAt, o.value);
+      }
+    }
+  }
+
+  const dateSet = new Set<string>();
+  for (const t of PROPERTY_TYPES) for (const d of valuesByDate[t].keys()) dateSet.add(d);
+  const fullDates = [...dateSet]
+    .sort()
+    .filter((d) => REQUIRED_TYPES.every((t) => valuesByDate[t].has(d)));
+  if (fullDates.length === 0) return undefined;
+
+  const total: MetricPoint[] = [];
+  const byType: ActiveListingsByType = {
+    single_family: [], condo: [], townhouse: [], multi_family: [],
+  };
+  for (const date of fullDates) {
+    let sum = 0;
+    for (const t of PROPERTY_TYPES) {
+      const v = valuesByDate[t].get(date) ?? 0;
+      byType[t].push({ date, value: v });
+      sum += v;
+    }
+    total.push({ date, value: sum });
+  }
+  return { total, byType };
 }
 
 function cadenceFor(source: string): ManifestSourceEntry['cadence'] {
@@ -149,7 +215,6 @@ function buildCountySummary(
   const zhviObs = forCounty.filter((o) => o.metric === 'zhvi_all_homes');
   const medianSaleObs = forCounty.filter((o) => o.metric === 'median_sale_price');
   const domObs = forCounty.filter((o) => o.metric === 'days_on_market');
-  const activeObs = forCounty.filter((o) => o.metric === 'active_listings');
   const monthsSupplyObs = forCounty.filter((o) => o.metric === 'months_supply');
   const unemploymentObs = forCounty.filter((o) => o.metric === 'unemployment_rate');
   const saleToListObs = forCounty.filter((o) => o.metric === 'sale_to_list_ratio');
@@ -164,7 +229,23 @@ function buildCountySummary(
   if (zhviObs.length) series.zhvi = toMetricPoints(zhviObs);
   if (medianSaleObs.length) series.medianSalePrice = toMetricPoints(medianSaleObs);
   if (domObs.length) series.daysOnMarket = toMetricPoints(domObs);
-  if (activeObs.length) series.activeListings = toMetricPoints(activeObs);
+  const activeListings = buildActiveListingsBreakdown(forCounty);
+  if (activeListings) series.activeListings = activeListings;
+
+  // Inventory YoY off the breakdown's `total` series; surfaced on `current`
+  // for the County page Market Health card and as a 4th composite input.
+  let inventoryYoY: number | undefined;
+  if (activeListings) {
+    const last = activeListings.total.at(-1);
+    if (last) {
+      const yearAgo = activeListings.total.findLast(
+        (p: MetricPoint) => p.date <= isoYearAgo(last.date),
+      );
+      if (yearAgo && yearAgo.value > 0) {
+        inventoryYoY = (last.value - yearAgo.value) / yearAgo.value;
+      }
+    }
+  }
 
   const summary: CountySummary = {
     fips: county.fips,
@@ -255,11 +336,18 @@ function buildCountySummary(
     summary.population = pop;
   }
 
+  if (activeListings) {
+    const latest = activeListings.total.at(-1);
+    if (latest) summary.current.activeListings = latest.value;
+    if (inventoryYoY !== undefined) summary.current.activeListingsYoY = inventoryYoY;
+  }
+
   // Market health score
   const mhs = marketHealthScore({
     monthsSupply: summary.current.monthsSupply,
     saleToListRatio: summary.current.saleToListRatio,
     pctSoldAboveList: summary.current.pctSoldAboveList,
+    inventoryYoY,
   });
   if (mhs !== undefined) {
     summary.current.marketHealthScore = mhs;
@@ -384,6 +472,89 @@ async function main(): Promise<void> {
       });
     } else {
       log.warn('no fully-disclosed DMV quarters; skipping federal-employment-dmv.json');
+    }
+  }
+
+  // DMV-wide active-listings aggregate (Redfin). Sum each property type across
+  // every covered DMV county; emit a month only when every covered county
+  // reports for that month (matches the federal-employment "all-or-skip" rule).
+  // Counties with very sparse breakdown coverage (e.g. Spotsylvania, 20 months
+  // out of 171) are excluded from `covered` so they don't gate the regional
+  // series; their absence is documented in `coverage.missing`.
+  const COVERAGE_RATIO_THRESHOLD = 0.95;
+  const perCountyRaw = new Map<string, ActiveListingsBreakdown>();
+  for (const c of DMV_COUNTIES) {
+    const forCounty = observations.filter((o) => o.fips === c.fips);
+    const b = buildActiveListingsBreakdown(forCounty);
+    if (b) perCountyRaw.set(c.fips, b);
+  }
+  const maxLen = Math.max(0, ...[...perCountyRaw.values()].map((b) => b.total.length));
+  const perCountyBreakdown = new Map(
+    [...perCountyRaw.entries()].filter(
+      ([, b]) => b.total.length >= maxLen * COVERAGE_RATIO_THRESHOLD,
+    ),
+  );
+  if (perCountyBreakdown.size > 0) {
+    const covered = [...perCountyBreakdown.keys()].sort();
+    const missing = DMV_COUNTIES.filter((c) => !perCountyBreakdown.has(c.fips)).map((c) => c.fips);
+    const dateCount = new Map<string, number>();
+    for (const b of perCountyBreakdown.values()) {
+      for (const p of b.total) dateCount.set(p.date, (dateCount.get(p.date) ?? 0) + 1);
+    }
+    const fullDates = [...dateCount.entries()]
+      .filter(([, n]) => n === covered.length)
+      .map(([d]) => d)
+      .sort();
+
+    const seriesTotal: MetricPoint[] = [];
+    const seriesByType: ActiveListingsByType = {
+      single_family: [], condo: [], townhouse: [], multi_family: [],
+    };
+    for (const date of fullDates) {
+      let sum = 0;
+      const byTypeSum: Record<keyof ActiveListingsByType, number> = {
+        single_family: 0, condo: 0, townhouse: 0, multi_family: 0,
+      };
+      for (const fips of covered) {
+        const b = perCountyBreakdown.get(fips)!;
+        sum += b.total.find((p) => p.date === date)!.value;
+        for (const t of PROPERTY_TYPES) {
+          byTypeSum[t] += b.byType[t].find((p) => p.date === date)!.value;
+        }
+      }
+      seriesTotal.push({ date, value: sum });
+      for (const t of PROPERTY_TYPES) seriesByType[t].push({ date, value: byTypeSum[t] });
+    }
+
+    if (seriesTotal.length > 0) {
+      const last = seriesTotal.at(-1)!;
+      const yearAgo = seriesTotal.findLast((p) => p.date <= isoYearAgo(last.date));
+      const latestYoY =
+        yearAgo && yearAgo.value > 0 ? (last.value - yearAgo.value) / yearAgo.value : undefined;
+      const file: ActiveListingsDmv = {
+        metric: 'active_listings',
+        fips: 'DMV',
+        unit: 'count',
+        cadence: 'monthly',
+        source: 'redfin',
+        lastUpdated: generatedAt,
+        asOf: last.date,
+        latest: {
+          total: last.value,
+          byType: {
+            single_family: seriesByType.single_family.at(-1)!.value,
+            condo: seriesByType.condo.at(-1)!.value,
+            townhouse: seriesByType.townhouse.at(-1)!.value,
+            multi_family: seriesByType.multi_family.at(-1)!.value,
+          },
+        },
+        latestYoY,
+        series: { total: seriesTotal, byType: seriesByType },
+        coverage: { fips: covered, missing },
+      };
+      await writeJsonAtomic(join(METRICS_DIR, 'active-listings-dmv.json'), file);
+    } else {
+      log.warn('no fully-covered DMV months; skipping active-listings-dmv.json');
     }
   }
 

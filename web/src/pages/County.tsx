@@ -8,6 +8,7 @@ import { BigChart } from '../components/county/BigChart.js';
 import { Affordability } from '../components/county/Affordability.js';
 import { MarketHealthBreakdown } from '../components/county/MarketHealthBreakdown.js';
 import { FederalEmploymentChart } from '../components/county/FederalEmploymentChart.js';
+import { CountyInventory } from '../components/county/CountyInventory.js';
 import { Container } from '../components/Container.js';
 
 export function County() {
@@ -63,8 +64,12 @@ export function County() {
         </div>
       </Container>
 
-      <Container className="mt-16 mb-24">
+      <Container className="mt-16">
         <FederalEmploymentChart county={data} />
+      </Container>
+
+      <Container className="mt-16 mb-24">
+        <CountyInventory county={data} />
       </Container>
     </div>
   );

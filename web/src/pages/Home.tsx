@@ -1,5 +1,5 @@
 import { useQueries, useQuery } from '@tanstack/react-query';
-import { getCountySummary, getFederalEmploymentDmv, getMortgageRates } from '../api.js';
+import { getActiveListingsDmv, getCountySummary, getFederalEmploymentDmv, getMortgageRates } from '../api.js';
 import { deriveMetroSnapshot } from '../lib/metro.js';
 import { DMV_FIPS } from '../lib/fips.js';
 import { Hero } from '../components/home/Hero.js';
@@ -27,6 +27,11 @@ export function Home() {
     queryFn: getFederalEmploymentDmv,
   });
 
+  const inventoryResult = useQuery({
+    queryKey: ['active-listings-dmv'] as const,
+    queryFn: getActiveListingsDmv,
+  });
+
   const counties = countyResults
     .map((r) => r.data)
     .filter((d) => d !== undefined);
@@ -45,7 +50,7 @@ export function Home() {
 
   const metro =
     counties.length > 0 && mortgageRates
-      ? deriveMetroSnapshot(counties, mortgageRates)
+      ? deriveMetroSnapshot(counties, mortgageRates, inventoryResult.data)
       : null;
 
   return (
@@ -66,7 +71,11 @@ export function Home() {
 
       {mortgageRates && (
         <Container className="mt-20 mb-24">
-          <WhatsDriving mortgageRates={mortgageRates} fedEmployment={fedEmploymentResult.data} />
+          <WhatsDriving
+            mortgageRates={mortgageRates}
+            fedEmployment={fedEmploymentResult.data}
+            inventory={inventoryResult.data}
+          />
         </Container>
       )}
     </div>

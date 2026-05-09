@@ -1,4 +1,4 @@
-import type { CountySummary, Manifest, MetricSeries } from '@dmv/shared';
+import type { ActiveListingsDmv, CountySummary, Manifest, MetricSeries } from '@dmv/shared';
 
 const BASE = '/data';
 
@@ -50,6 +50,10 @@ export interface FederalEmploymentDmv {
 
 export function getFederalEmploymentDmv(): Promise<FederalEmploymentDmv> {
   return getJson<FederalEmploymentDmv>('/metrics/federal-employment-dmv.json');
+}
+
+export function getActiveListingsDmv(): Promise<ActiveListingsDmv> {
+  return getJson<ActiveListingsDmv>('/metrics/active-listings-dmv.json');
 }
 
 export function getManifest(): Promise<Manifest> {

@@ -1,4 +1,4 @@
-import type { CountySummary, MetricSeries } from '@dmv/shared';
+import type { ActiveListingsDmv, CountySummary, MetricSeries } from '@dmv/shared';
 
 export interface MetroSnapshot {
   medianSalePrice: number | undefined;
@@ -24,14 +24,10 @@ function median(values: number[]): number | undefined {
 export function deriveMetroSnapshot(
   counties: CountySummary[],
   mortgageRates: MetricSeries,
+  inventory?: ActiveListingsDmv | undefined,
 ): MetroSnapshot {
   const salePrices = counties.map((c) => c.current.medianSalePrice).filter((v): v is number => v != null);
   const salePriceYoYs = counties.map((c) => c.current.medianSalePriceYoY).filter((v): v is number => v != null);
-  const listingCounts = counties.map((c) => {
-    const pts = (c.series as Record<string, unknown>);
-    const active = pts.activeListings as Array<{ value: number }> | undefined;
-    return active?.at(-1)?.value;
-  }).filter((v): v is number => v != null);
   const domValues = counties.map((c) => c.current.daysOnMarket).filter((v): v is number => v != null);
   const healthScores = counties.map((c) => c.current.marketHealthScore).filter((v): v is number => v != null);
 
@@ -51,8 +47,8 @@ export function deriveMetroSnapshot(
     medianSalePriceYoY: median(salePriceYoYs),
     mortgageRate,
     mortgageRateYoY,
-    activeListings: listingCounts.reduce((a, b) => a + b, 0) || undefined,
-    activeListingsYoY: median(salePriceYoYs),
+    activeListings: inventory?.latest.total,
+    activeListingsYoY: inventory?.latestYoY,
     daysOnMarket: median(domValues),
     marketHealth: median(healthScores),
   };
