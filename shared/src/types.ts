@@ -103,8 +103,22 @@ export interface CountyCurrentSnapshot {
   federalEmployment?: number;
   federalEmploymentYoY?: number;
   federalEmploymentAsOf?: string;
+  activeListings?: number;
+  activeListingsYoY?: number;
   marketHealthScore?: number;
   affordabilityIndex?: number;
+}
+
+export interface ActiveListingsByType {
+  single_family: MetricPoint[];
+  condo: MetricPoint[];
+  townhouse: MetricPoint[];
+  multi_family: MetricPoint[];
+}
+
+export interface ActiveListingsBreakdown {
+  total: MetricPoint[];
+  byType: ActiveListingsByType;
 }
 
 export interface CountySeries {
@@ -112,7 +126,7 @@ export interface CountySeries {
   zhvi?: MetricPoint[];
   medianSalePrice?: MetricPoint[];
   daysOnMarket?: MetricPoint[];
-  activeListings?: MetricPoint[];
+  activeListings?: ActiveListingsBreakdown;
   federalEmployment?: MetricPoint[];
 }
 
@@ -143,4 +157,21 @@ export interface ManifestSourceEntry {
 export interface Manifest {
   generatedAt: string;
   sources: ManifestSourceEntry[];
+}
+
+export interface ActiveListingsDmv {
+  metric: 'active_listings';
+  fips: 'DMV';
+  unit: 'count';
+  cadence: 'monthly';
+  source: 'redfin';
+  lastUpdated: string;
+  asOf: string;
+  latest: {
+    total: number;
+    byType: { single_family: number; condo: number; townhouse: number; multi_family: number };
+  };
+  latestYoY: number | undefined;
+  series: ActiveListingsBreakdown;
+  coverage: { fips: string[]; missing: string[] };
 }
