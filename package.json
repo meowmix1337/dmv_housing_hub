@@ -22,8 +22,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "ingest": "npm run ingest --workspace=scripts",
     "transform": "npm run transform --workspace=scripts",
-    "test": "npm run test --workspaces --if-present",
-    "prep-geojson": "tsx scripts/prep-geojson.ts"
+    "test": "npm run test --workspaces --if-present"
   },
   "devDependencies": {
     "react": "^19.0.0",

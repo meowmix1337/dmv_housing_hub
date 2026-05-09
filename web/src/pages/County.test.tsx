@@ -4,11 +4,6 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { CountySummary, MetricSeries } from '@dmv/shared';
 
-vi.mock('maplibre-gl', () => ({
-  default: { Map: vi.fn(() => ({ on: vi.fn(), once: vi.fn(), remove: vi.fn(), addSource: vi.fn(), addLayer: vi.fn(), setFeatureState: vi.fn(), setPaintProperty: vi.fn(), getCanvas: vi.fn(() => ({ style: {} })), isStyleLoaded: vi.fn(() => true) })) },
-}));
-vi.mock('maplibre-gl/dist/maplibre-gl.css', () => ({}));
-
 const MORTGAGE_SERIES: MetricSeries = {
   metric: 'mortgage_30y_rate', fips: 'USA', unit: 'percent',
   cadence: 'weekly', source: 'fred', lastUpdated: '2026-01-01',
