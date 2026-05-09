@@ -46,15 +46,21 @@ export function ChoroplethMap({ counties = [] }: ChoroplethMapProps) {
   useEffect(() => { countiesRef.current = counties; }, [counties]);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || mapRef.current) return;
 
-    const map = new maplibregl.Map({
-      container: containerRef.current,
-      style: MAP_STYLE,
-      center: [-77.4, 38.9],
-      zoom: 7.5,
-      attributionControl: false,
-    });
+    let map: maplibregl.Map;
+    try {
+      map = new maplibregl.Map({
+        container: containerRef.current,
+        style: MAP_STYLE,
+        center: [-77.4, 38.9],
+        zoom: 7.5,
+        attributionControl: false,
+      });
+    } catch (err) {
+      console.error('[ChoroplethMap] Failed to initialize MapLibre:', err);
+      return;
+    }
     mapRef.current = map;
 
     map.on('load', () => {
@@ -128,7 +134,10 @@ export function ChoroplethMap({ counties = [] }: ChoroplethMapProps) {
       if (fips) navigate(`/county/${fips}`);
     });
 
-    return () => map.remove();
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
   }, [navigate]);
 
   // Update fill colors when counties or metric changes
