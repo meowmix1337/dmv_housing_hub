@@ -21,6 +21,11 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          # PAT belonging to a repo admin (on the ruleset bypass list) so the
+          # commit step can push directly to main. The default GITHUB_TOKEN
+          # acts as github-actions[bot], which is blocked by branch rules.
+          token: ${{ secrets.INGEST_PUSH_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
