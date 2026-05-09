@@ -143,6 +143,10 @@ If a request requires breaking one of these: "This requires X, which is excluded
 - Conventional commits: `feat:`, `fix:`, `data:`, `chore:`, `docs:`, `refactor:`, `test:`
 - One ingester per PR; one feature per PR
 - Auto-generated data refresh commits use `data:` prefix
+- Feature branches only — never commit to `main`
+- Verify branch with `git branch --show-current` before any work
+- PR base is always `main`
+- Keep commits small: 2–3 files, ~200–300 lines of changes per commit
 
 ## When in doubt
 
