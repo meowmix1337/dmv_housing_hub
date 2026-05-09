@@ -99,7 +99,9 @@ export function BigChart({ county, allCounties }: BigChartProps) {
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <Source>Source: U.S. Federal Housing Finance Agency, FHFA HPI · via FRED</Source>
+      <div className="px-6 pb-4">
+        <Source>Source: U.S. Federal Housing Finance Agency, FHFA HPI · via FRED</Source>
+      </div>
     </div>
   );
 }

@@ -18,9 +18,19 @@ const FULL_COUNTY: CountySummary = {
     zhvi: 620_000, zhviYoY: 0.04, medianSalePrice: 600_000,
     medianSalePriceYoY: 0.03, daysOnMarket: 18, monthsSupply: 1.8,
     saleToListRatio: 1.01, pctSoldAboveList: 0.45,
+    federalEmployment: 38_500, federalEmploymentYoY: -0.02,
+    federalEmploymentAsOf: '2025-09-01',
     marketHealthScore: 72, affordabilityIndex: 0.38,
   },
-  series: { fhfaHpi: [{ date: '2020-01-01', value: 280 }, { date: '2023-01-01', value: 340 }] },
+  series: {
+    fhfaHpi: [{ date: '2020-01-01', value: 280 }, { date: '2023-01-01', value: 340 }],
+    federalEmployment: [
+      { date: '2024-12-01', value: 38_000 },
+      { date: '2025-03-01', value: 38_200 },
+      { date: '2025-06-01', value: 38_300 },
+      { date: '2025-09-01', value: 38_500 },
+    ],
+  },
 };
 
 const SPARSE_COUNTY: CountySummary = {
@@ -51,10 +61,10 @@ describe('County page', () => {
 
     expect(screen.getByText('Montgomery County')).toBeInTheDocument();
     expect(screen.getByText(/Typical home value/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Federal employment/i).length).toBeGreaterThan(0);
+    expect(screen.getByText('38,500')).toBeInTheDocument();
     expect(screen.getByText(/Home prices since 1975/i)).toBeInTheDocument();
     expect(screen.getByText(/Affordability calculator/i)).toBeInTheDocument();
-    expect(screen.getByText(/2026 price forecast/i)).toBeInTheDocument();
-    expect(screen.getByText(/Federal-employment exposure/i)).toBeInTheDocument();
   });
 
   it('renders sparse county with InsufficientData placeholders', async () => {

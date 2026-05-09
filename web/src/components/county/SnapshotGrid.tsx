@@ -1,6 +1,6 @@
 import type { CountySummary } from '@dmv/shared';
 import { MetricCard } from '../MetricCard.js';
-import { formatCurrency } from '../../lib/format.js';
+import { formatCurrency, formatNumber } from '../../lib/format.js';
 
 interface SnapshotGridProps {
   county: CountySummary;
@@ -29,12 +29,18 @@ export function SnapshotGrid({ county }: SnapshotGridProps) {
     : undefined;
 
   return (
-    <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
+    <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}>
       <MetricCard
         label="Typical home value"
         value={current.zhvi !== undefined ? formatCurrency(current.zhvi) : '—'}
         change={current.zhviYoY}
         source="Zillow ZHVI"
+      />
+      <MetricCard
+        label="Federal employment"
+        value={current.federalEmployment !== undefined ? formatNumber(current.federalEmployment) : '—'}
+        change={current.federalEmploymentYoY}
+        source="BLS QCEW"
       />
       <MetricCard
         label="Median sale price"

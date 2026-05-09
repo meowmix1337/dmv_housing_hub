@@ -3,6 +3,9 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { CountySummary } from '@dmv/shared';
 import { BiggestMovers } from '../components/home/BiggestMovers.js';
+import { MetricStrip } from '../components/home/MetricStrip.js';
+import type { MetroSnapshot } from '../lib/metro.js';
+import type { FederalEmploymentDmv } from '../api.js';
 import { DMV_FIPS } from '../lib/fips.js';
 
 function makeCounty(fips: string, zhviYoY: number, sparse = false): CountySummary {
@@ -66,5 +69,50 @@ describe('BiggestMovers', () => {
     const gainCards = screen.queryByText('Largest gains');
     // The section header still renders, but the lists are empty
     expect(gainCards).toBeInTheDocument();
+  });
+});
+
+const METRO: MetroSnapshot = {
+  medianSalePrice: 600_000,
+  medianSalePriceYoY: 0.03,
+  mortgageRate: 0.062,
+  mortgageRateYoY: 0.001,
+  activeListings: 12_000,
+  activeListingsYoY: 0.05,
+  daysOnMarket: 22,
+  marketHealth: 65,
+};
+
+const FED: FederalEmploymentDmv = {
+  metric: 'federal_employment',
+  fips: 'DMV',
+  unit: 'count',
+  cadence: 'quarterly',
+  source: 'qcew',
+  lastUpdated: '2026-01-01',
+  total: 412_500,
+  totalYoY: -0.025,
+  asOf: '2025-09-01',
+  points: [{ date: '2025-09-01', value: 412_500 }],
+};
+
+describe('MetricStrip federal jobs card', () => {
+  it('renders the formatted total when fedEmployment data is present', () => {
+    render(
+      <Wrapper>
+        <MetricStrip metro={METRO} fedEmployment={FED} />
+      </Wrapper>,
+    );
+    expect(screen.getByText('DMV federal jobs')).toBeInTheDocument();
+    expect(screen.getByText('412,500')).toBeInTheDocument();
+  });
+
+  it('renders an em dash when fedEmployment data is absent', () => {
+    render(
+      <Wrapper>
+        <MetricStrip metro={METRO} />
+      </Wrapper>,
+    );
+    expect(screen.getByText('DMV federal jobs')).toBeInTheDocument();
   });
 });

@@ -100,6 +100,9 @@ export interface CountyCurrentSnapshot {
   saleToListRatio?: number;
   pctSoldAboveList?: number;
   unemploymentRate?: number;
+  federalEmployment?: number;
+  federalEmploymentYoY?: number;
+  federalEmploymentAsOf?: string;
   marketHealthScore?: number;
   affordabilityIndex?: number;
 }
@@ -110,6 +113,7 @@ export interface CountySeries {
   medianSalePrice?: MetricPoint[];
   daysOnMarket?: MetricPoint[];
   activeListings?: MetricPoint[];
+  federalEmployment?: MetricPoint[];
 }
 
 /**

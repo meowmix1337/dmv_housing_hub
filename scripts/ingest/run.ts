@@ -12,6 +12,7 @@ import { CensusSource } from './census.js';
 import { BlsSource } from './bls.js';
 import { ZillowSource } from './zillow.js';
 import { RedfinSource } from './redfin.js';
+import { QcewSource } from './qcew.js';
 
 const REGISTRY: Record<string, () => DataSource> = {
   fred: () => new FredSource(),
@@ -19,6 +20,7 @@ const REGISTRY: Record<string, () => DataSource> = {
   bls: () => new BlsSource(),
   zillow: () => new ZillowSource(),
   redfin: () => new RedfinSource(),
+  qcew: () => new QcewSource(),
 };
 
 interface CliArgs {

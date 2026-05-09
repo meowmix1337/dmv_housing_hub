@@ -11,6 +11,7 @@
     "ingest:bls": "tsx ingest/run.ts --source=bls",
     "ingest:zillow": "tsx ingest/run.ts --source=zillow",
     "ingest:redfin": "tsx ingest/run.ts --source=redfin",
+    "ingest:qcew": "tsx ingest/run.ts --source=qcew",
     "transform": "tsx transform/build-county-pages.ts",
     "test": "vitest run"
   },
