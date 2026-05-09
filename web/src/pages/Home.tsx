@@ -1,4 +1,3 @@
-import { lazy, Suspense } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { getCountySummary, getMortgageRates } from '../api.js';
 import { deriveMetroSnapshot } from '../lib/metro.js';
@@ -8,16 +7,7 @@ import { MetricStrip } from '../components/home/MetricStrip.js';
 import { BiggestMovers } from '../components/home/BiggestMovers.js';
 import { WhatsDriving } from '../components/home/WhatsDriving.js';
 import { Container } from '../components/Container.js';
-
-const ChoroplethMap = lazy(() => import('../components/ChoroplethMap.js'));
-
-function MapPlaceholder() {
-  return (
-    <div className="rounded-lg border border-dashed border-border-soft p-12 text-center text-fg-3">
-      Loading map…
-    </div>
-  );
-}
+import { HexMap } from '../components/HexMap.js';
 
 export function Home() {
   const countyResults = useQueries({
@@ -60,9 +50,7 @@ export function Home() {
       {metro && <MetricStrip metro={metro} />}
 
       <Container className="mt-14">
-        <Suspense fallback={<MapPlaceholder />}>
-          <ChoroplethMap counties={counties} />
-        </Suspense>
+        <HexMap counties={counties} />
       </Container>
 
       {counties.length > 0 && (

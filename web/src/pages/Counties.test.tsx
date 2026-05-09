@@ -5,11 +5,6 @@ import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { CountySummary } from '@dmv/shared';
 
-vi.mock('maplibre-gl', () => ({
-  default: { Map: vi.fn(() => ({ on: vi.fn(), once: vi.fn(), remove: vi.fn(), addSource: vi.fn(), addLayer: vi.fn(), setFeatureState: vi.fn(), setPaintProperty: vi.fn(), getCanvas: vi.fn(() => ({ style: {} })), isStyleLoaded: vi.fn(() => true) })) },
-}));
-vi.mock('maplibre-gl/dist/maplibre-gl.css', () => ({}));
-
 const MONTGOMERY: CountySummary = {
   fips: '24031', name: 'Montgomery County', jurisdiction: 'MD',
   lastUpdated: '2026-01-01',
