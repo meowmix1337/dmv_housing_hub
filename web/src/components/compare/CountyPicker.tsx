@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import type { CountySummary } from '@dmv/shared';
+import { JurisdictionBadge } from '../JurisdictionBadge.js';
+import { shortName } from '../../lib/county-names.js';
 
 interface CountyPickerProps {
   allCounties: CountySummary[];
@@ -7,72 +9,76 @@ interface CountyPickerProps {
   onToggle: (fips: string) => void;
 }
 
-const JURISDICTION_ORDER = ['DC', 'MD', 'VA'] as const;
-type Jurisdiction = typeof JURISDICTION_ORDER[number];
+const GROUPS: Array<{ jur: 'DC' | 'MD' | 'VA'; title: string }> = [
+  { jur: 'DC', title: 'District of Columbia' },
+  { jur: 'MD', title: 'Maryland' },
+  { jur: 'VA', title: 'Virginia' },
+];
 
 export function CountyPicker({ allCounties, selected, onToggle }: CountyPickerProps) {
   const [query, setQuery] = useState('');
-  const atCap = selected.length >= 5;
-
-  const groups = JURISDICTION_ORDER.reduce<Record<Jurisdiction, CountySummary[]>>(
-    (acc, j) => ({ ...acc, [j]: [] }),
-    { DC: [], MD: [], VA: [] },
-  );
-  for (const c of allCounties) {
-    const j = c.jurisdiction as Jurisdiction;
-    if (j in groups) groups[j].push(c);
-  }
-
   const q = query.toLowerCase();
+
   const matches = (c: CountySummary) =>
-    !q || c.name.toLowerCase().includes(q) || c.fips.includes(q);
+    !q || c.name.toLowerCase().includes(q) || shortName(c).toLowerCase().includes(q);
 
   return (
     <aside
-      className="w-80 shrink-0 self-start sticky top-20 overflow-y-auto rounded-lg border border-border-soft bg-bg-paper p-4"
+      className="self-start sticky top-20 overflow-y-auto rounded-2xl border border-border-soft bg-surface-1 p-5"
       style={{ maxHeight: 'calc(100vh - 100px)' }}
     >
-      <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-fg-3">
-        Counties {selected.length > 0 && <span>({selected.length}/5)</span>}
-      </p>
+      <div className="flex justify-between items-baseline mb-1">
+        <div className="eyebrow">Counties</div>
+        <span className="text-xs text-fg-3 font-mono">{selected.length} / 5</span>
+      </div>
+      <div className="text-xs text-fg-3 mb-3">Pick 2 to 5 to compare.</div>
 
       <input
         type="search"
-        placeholder="Search counties…"
+        placeholder="Search…"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="mb-4 w-full rounded-sm border border-border-soft bg-bg-paper px-3 py-1.5 text-sm text-fg-1 placeholder-fg-3 focus:outline-none focus:ring-1 focus:ring-primary"
+        className="w-full px-3 py-2 mb-4 text-[13px] text-fg-1 placeholder-fg-3 bg-paper-50 border border-border-soft rounded-lg focus:outline-none focus:ring-1 focus:ring-fg-1"
       />
 
-      {JURISDICTION_ORDER.map((j) => {
-        const counties = groups[j].filter(matches);
-        if (counties.length === 0) return null;
+      {GROUPS.map(({ jur, title }) => {
+        const items = allCounties.filter((c) => c.jurisdiction === jur && matches(c));
+        if (items.length === 0) return null;
         return (
-          <div key={j} className="mb-4">
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-fg-3">{j}</p>
-            {counties.map((c) => {
-              const checked = selected.includes(c.fips);
-              const disabled = atCap && !checked;
-              return (
-                <label
-                  key={c.fips}
-                  aria-disabled={disabled}
-                  className={[
-                    'flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-bg-subtle',
-                    disabled ? 'cursor-not-allowed opacity-40' : '',
-                  ].join(' ')}
-                >
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    disabled={disabled}
-                    onChange={() => onToggle(c.fips)}
-                    className="accent-primary"
-                  />
-                  <span className={checked ? 'font-medium text-fg-1' : 'text-fg-2'}>{c.name}</span>
-                </label>
-              );
-            })}
+          <div key={jur} className="mb-4">
+            <div className="flex items-center gap-2 mb-2">
+              <JurisdictionBadge jurisdiction={jur} />
+              <span className="eyebrow text-fg-3">{title}</span>
+            </div>
+            <div className="flex flex-col gap-0.5">
+              {items.map((c) => {
+                const on = selected.includes(c.fips);
+                const atCap = !on && selected.length >= 5;
+                return (
+                  <button
+                    key={c.fips}
+                    onClick={() => onToggle(c.fips)}
+                    disabled={atCap}
+                    aria-pressed={on}
+                    className={[
+                      'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-left text-[13px] transition-colors',
+                      on ? 'bg-bg-soft' : 'hover:bg-bg-soft/60',
+                      atCap ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer',
+                    ].join(' ')}
+                  >
+                    <span
+                      className={[
+                        'w-4 h-4 rounded-sm flex items-center justify-center shrink-0 border-[1.5px]',
+                        on ? 'border-fg-1 bg-fg-1' : 'border-border-strong bg-transparent',
+                      ].join(' ')}
+                    >
+                      {on && <span className="text-white text-[11px] font-bold leading-none">✓</span>}
+                    </span>
+                    <span className="flex-1 truncate text-fg-1">{shortName(c)}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         );
       })}

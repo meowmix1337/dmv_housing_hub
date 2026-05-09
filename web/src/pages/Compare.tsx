@@ -26,22 +26,29 @@ export function Compare() {
   const metric = COMPARE_METRICS.find((m) => m.id === metricId) ?? COMPARE_METRICS[0]!;
 
   return (
-    <div className="bg-bg-paper min-h-screen py-8">
-      <Container>
-        <h1 className="mb-1 font-display text-3xl font-semibold text-fg-1">Compare counties</h1>
-        <p className="mb-8 text-sm text-fg-3">Select up to 5 counties to compare side-by-side.</p>
+    <div className="bg-bg-paper min-h-screen">
+      <div className="border-b border-border-soft">
+        <Container className="pt-12 pb-8">
+          <div className="eyebrow text-fg-3">Compare counties</div>
+          <h1 className="mt-2.5 font-display text-[44px] font-semibold leading-[1.05] tracking-tight text-fg-1">
+            How does your county stack up against its neighbors?
+          </h1>
+          <p className="mt-3.5 text-base text-fg-2 leading-relaxed max-w-[640px]">
+            Pick 2 to 5 jurisdictions and a metric. The DMV&rsquo;s internal divergence is the story national averages can&rsquo;t tell.
+          </p>
+        </Container>
+      </div>
 
-        <div className="flex gap-8 items-start">
+      <Container className="mt-8 pb-16">
+        <div className="grid grid-cols-[320px_1fr] gap-6 items-start">
           <CountyPicker
             allCounties={allCounties}
             selected={selected}
             onToggle={toggle}
           />
 
-          <div className="flex-1 min-w-0">
-            <div className="mb-6">
-              <MetricPicker metric={metricId} onSelect={setMetric} />
-            </div>
+          <div className="flex flex-col gap-6 min-w-0">
+            <MetricPicker metric={metricId} onSelect={setMetric} />
 
             {selectedCounties.length < 2 ? (
               <EmptyState />
