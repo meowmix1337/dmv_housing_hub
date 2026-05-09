@@ -2,7 +2,7 @@
   "fips": "24003",
   "name": "Anne Arundel County",
   "jurisdiction": "MD",
-  "lastUpdated": "2026-05-08T19:14:58.572Z",
+  "lastUpdated": "2026-05-09T15:52:02.204Z",
   "current": {
     "zhvi": 505791.88234481006,
     "zhviYoY": 0.0055062164003324985,
@@ -14,7 +14,7 @@
     "saleToListRatio": 0.9989874311,
     "pctSoldAboveList": 0.3676470588,
     "marketHealthScore": 72,
-    "affordabilityIndex": 0.3020136534121233
+    "affordabilityIndex": 0.3038550123117624
   },
   "series": {
     "fhfaHpi": [

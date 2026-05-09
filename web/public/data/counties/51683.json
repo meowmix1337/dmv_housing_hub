@@ -2,7 +2,7 @@
   "fips": "51683",
   "name": "Manassas city",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-08T19:14:58.572Z",
+  "lastUpdated": "2026-05-09T15:52:02.204Z",
   "current": {
     "zhvi": 491877.89831539406,
     "zhviYoY": -0.0038133670478339115,
@@ -14,7 +14,7 @@
     "saleToListRatio": 1.001428516,
     "pctSoldAboveList": 0.3571428571,
     "marketHealthScore": 74,
-    "affordabilityIndex": 0.3332473381430196
+    "affordabilityIndex": 0.33520140877599475
   },
   "series": {
     "fhfaHpi": [

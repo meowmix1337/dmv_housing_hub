@@ -2,7 +2,7 @@
   "fips": "51059",
   "name": "Fairfax County",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-08T19:14:58.572Z",
+  "lastUpdated": "2026-05-09T15:52:02.204Z",
   "current": {
     "zhvi": 774448.2693836597,
     "zhviYoY": -0.012380609227629425,
@@ -14,7 +14,7 @@
     "saleToListRatio": 1.01343776,
     "pctSoldAboveList": 0.4737945493,
     "marketHealthScore": 79,
-    "affordabilityIndex": 0.3735512432652028
+    "affordabilityIndex": 0.3757578654253055
   },
   "series": {
     "fhfaHpi": [

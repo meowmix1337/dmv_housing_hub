@@ -2,7 +2,7 @@
   "fips": "51685",
   "name": "Manassas Park city",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-08T19:14:58.572Z",
+  "lastUpdated": "2026-05-09T15:52:02.204Z",
   "current": {
     "zhvi": 461984.88898529654,
     "zhviYoY": 0.014732004735892878,
@@ -14,7 +14,7 @@
     "saleToListRatio": 0.9943109503,
     "pctSoldAboveList": 0.2777777778,
     "marketHealthScore": 70,
-    "affordabilityIndex": 0.33776289128474246
+    "affordabilityIndex": 0.3397447642807309
   },
   "series": {
     "fhfaHpi": [

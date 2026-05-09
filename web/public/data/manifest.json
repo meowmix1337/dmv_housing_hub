@@ -1,33 +1,33 @@
 {
-  "generatedAt": "2026-05-08T19:14:58.572Z",
+  "generatedAt": "2026-05-09T15:52:02.204Z",
   "sources": [
     {
       "name": "fred",
-      "lastUpdated": "2026-05-07T15:34:59.136Z",
+      "lastUpdated": "2026-05-09T15:51:07.872Z",
       "cadence": "monthly",
       "status": "ok"
     },
     {
       "name": "census",
-      "lastUpdated": "2026-05-07T20:28:32.354Z",
+      "lastUpdated": "2026-05-09T15:51:09.383Z",
       "cadence": "annual",
       "status": "ok"
     },
     {
       "name": "bls",
-      "lastUpdated": "2026-05-07T15:17:00.857Z",
+      "lastUpdated": "2026-05-09T15:51:10.742Z",
       "cadence": "monthly",
       "status": "ok"
     },
     {
       "name": "zillow",
-      "lastUpdated": "2026-05-08T13:06:25.115Z",
+      "lastUpdated": "2026-05-09T15:51:14.418Z",
       "cadence": "monthly",
       "status": "ok"
     },
     {
       "name": "redfin",
-      "lastUpdated": "2026-05-07T23:04:21.637Z",
+      "lastUpdated": "2026-05-09T15:52:00.943Z",
       "cadence": "weekly",
       "status": "ok"
     }

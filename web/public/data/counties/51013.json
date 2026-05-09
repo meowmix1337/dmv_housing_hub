@@ -2,7 +2,7 @@
   "fips": "51013",
   "name": "Arlington County",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-08T19:14:58.572Z",
+  "lastUpdated": "2026-05-09T15:52:02.204Z",
   "current": {
     "zhvi": 824388.1891108117,
     "zhviYoY": -0.0014756253703557597,
@@ -14,7 +14,7 @@
     "saleToListRatio": 1.007894439,
     "pctSoldAboveList": 0.3875598086,
     "marketHealthScore": 73,
-    "affordabilityIndex": 0.4247779755106704
+    "affordabilityIndex": 0.4273291070267842
   },
   "series": {
     "fhfaHpi": [

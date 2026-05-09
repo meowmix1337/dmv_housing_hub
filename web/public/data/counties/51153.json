@@ -2,7 +2,7 @@
   "fips": "51153",
   "name": "Prince William County",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-08T19:14:58.572Z",
+  "lastUpdated": "2026-05-09T15:52:02.204Z",
   "current": {
     "zhvi": 587492.2752445017,
     "zhviYoY": 0.005825722301223818,
@@ -14,7 +14,7 @@
     "saleToListRatio": 1.005548908,
     "pctSoldAboveList": 0.4088983051,
     "marketHealthScore": 75,
-    "affordabilityIndex": 0.32805700991991094
+    "affordabilityIndex": 0.3299975036563864
   },
   "series": {
     "fhfaHpi": [

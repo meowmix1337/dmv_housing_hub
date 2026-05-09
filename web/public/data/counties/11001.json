@@ -2,7 +2,7 @@
   "fips": "11001",
   "name": "District of Columbia",
   "jurisdiction": "DC",
-  "lastUpdated": "2026-05-08T19:14:58.572Z",
+  "lastUpdated": "2026-05-09T15:52:02.204Z",
   "current": {
     "zhvi": 583076.9209961476,
     "zhviYoY": -0.029493112500912567,
@@ -14,7 +14,7 @@
     "saleToListRatio": 0.9867668623,
     "pctSoldAboveList": 0.2344045369,
     "marketHealthScore": 42,
-    "affordabilityIndex": 0.4555938254025403
+    "affordabilityIndex": 0.4583924772326141
   },
   "series": {
     "fhfaHpi": [
