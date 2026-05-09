@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import type { CountySummary } from '@dmv/shared';
 import { JurisdictionBadge } from './JurisdictionBadge.js';
 import { formatCurrency, formatPercent } from '../lib/format.js';
+import { shortName } from '../lib/county-names.js';
 
 type HexMetric = 'yoy' | 'zhvi' | 'health' | 'dom' | 'supply';
 
@@ -205,7 +206,8 @@ export function HexMap({ counties = [] }: HexMapProps) {
               const fill = colorFor(c, metric);
               const isHover = hoverFips === c.fips;
               const labelColor = luminance(fill) > 0.55 ? '#2B201A' : '#fff';
-              const display = c.name.length > 12 ? `${c.name.slice(0, 11)}…` : c.name;
+              const sn = shortName(c);
+              const display = sn.length > 12 ? `${sn.slice(0, 11)}…` : sn;
               return (
                 <g
                   key={c.fips}
