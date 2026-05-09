@@ -41,17 +41,31 @@ const PROPERTY_TYPE_SLUGS: Readonly<Record<string, string>> = {
   'Multi-Family (2-4 Unit)': 'multi_family',
 };
 
+/**
+ * Index keyed by `${stateCode}:${countyNameLowercase}`. The state prefix
+ * prevents VA → MD collisions for shared county names (Montgomery, Frederick).
+ *
+ * For each canonical name we register the canonical form plus any known
+ * Redfin-specific aliases:
+ *   - "Alexandria city, VA"      → also "Alexandria, VA"
+ *   - "Baltimore city, MD"       → also "Baltimore City County, MD"
+ *     (Redfin's actual publication name; the short form does not appear)
+ */
 export function buildFipsIndex(): ReadonlyMap<string, string> {
   const map = new Map<string, string>();
+  const add = (state: string, name: string, fips: string) => {
+    map.set(`${state}:${name.toLowerCase()}`, fips);
+  };
   for (const county of DMV_COUNTIES) {
-    const key = county.name.toLowerCase();
-    map.set(key, county.fips);
-    // Redfin sometimes omits " city" suffix for independent VA cities
-    // (e.g. "Alexandria, VA" instead of "Alexandria city, VA")
-    if (key.endsWith(' city')) {
-      map.set(key.slice(0, -5), county.fips);
+    const state = county.stateFips === '11' ? 'DC' : county.stateFips === '24' ? 'MD' : 'VA';
+    const name = county.name;
+    add(state, name, county.fips);
+    if (name.toLowerCase().endsWith(' city')) {
+      add(state, name.slice(0, -5), county.fips);
     }
   }
+  // Redfin alias: Baltimore city ships as "Baltimore City County, MD".
+  add('MD', 'Baltimore City County', '24510');
   return map;
 }
 
@@ -60,7 +74,7 @@ export function parseRow(
   fipsIndex: ReadonlyMap<string, string>,
 ): Observation[] {
   const duration = row['PERIOD_DURATION'];
-  if (duration !== '7' && duration !== '30') return [];
+  if (duration !== '30') return [];
   if (row['REGION_TYPE'] !== 'county') return [];
 
   const stateCode = row['STATE_CODE'] ?? '';
@@ -71,7 +85,7 @@ export function parseRow(
     regionRaw.endsWith(suffix) ? regionRaw.slice(0, -suffix.length) : regionRaw
   ).toLowerCase();
 
-  const fips = fipsIndex.get(countyName);
+  const fips = fipsIndex.get(`${stateCode}:${countyName}`);
   if (!fips) {
     log.debug({ region: row['REGION'], state_code: stateCode }, 'redfin: county not in DMV area; skipping');
     return [];

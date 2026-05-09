@@ -6,8 +6,8 @@ const FIPS_INDEX = buildFipsIndex();
 function baseRow(overrides: Partial<Record<string, string>> = {}): Record<string, string> {
   return {
     PERIOD_BEGIN: '2024-01-01',
-    PERIOD_END: '2024-01-07',
-    PERIOD_DURATION: '7',
+    PERIOD_END: '2024-01-31',
+    PERIOD_DURATION: '30',
     REGION_TYPE: 'county',
     REGION: 'Montgomery County, MD',
     STATE: 'Maryland',
@@ -32,7 +32,7 @@ function baseRow(overrides: Partial<Record<string, string>> = {}): Record<string
 }
 
 describe('parseRow', () => {
-  it('emits one observation per mapped column for a passing weekly row', () => {
+  it('emits one observation per mapped column for a passing monthly row', () => {
     const obs = parseRow(baseRow(), FIPS_INDEX);
     expect(obs).toHaveLength(11);
 
@@ -42,7 +42,7 @@ describe('parseRow', () => {
       series: 'redfin:county:all_residential',
       fips: '24031',
       metric: 'median_sale_price',
-      observedAt: '2024-01-07',
+      observedAt: '2024-01-31',
       value: 500000,
       unit: 'USD',
     });
@@ -56,9 +56,9 @@ describe('parseRow', () => {
     expect(soldAbove?.unit).toBe('percent');
   });
 
-  it('accepts monthly rows (period_duration = 30)', () => {
-    const obs = parseRow(baseRow({ PERIOD_DURATION: '30' }), FIPS_INDEX);
-    expect(obs).toHaveLength(11);
+  it('returns empty array for weekly rows (period_duration = 7)', () => {
+    const obs = parseRow(baseRow({ PERIOD_DURATION: '7' }), FIPS_INDEX);
+    expect(obs).toHaveLength(0);
   });
 
   it('returns empty array for unsupported durations (period_duration = 14)', () => {
@@ -90,5 +90,48 @@ describe('parseRow', () => {
     );
     const salePrice = obs.find((o) => o.metric === 'median_sale_price');
     expect(salePrice?.fips).toBe('51510');
+  });
+
+  it('resolves Baltimore city MD to FIPS 24510', () => {
+    const obs = parseRow(
+      baseRow({ REGION: 'Baltimore city, MD', STATE_CODE: 'MD' }),
+      FIPS_INDEX,
+    );
+    const salePrice = obs.find((o) => o.metric === 'median_sale_price');
+    expect(salePrice?.fips).toBe('24510');
+  });
+
+  it('resolves Baltimore MD (no city suffix) to FIPS 24510', () => {
+    const obs = parseRow(
+      baseRow({ REGION: 'Baltimore, MD', STATE_CODE: 'MD' }),
+      FIPS_INDEX,
+    );
+    const salePrice = obs.find((o) => o.metric === 'median_sale_price');
+    expect(salePrice?.fips).toBe('24510');
+  });
+
+  it('resolves "Baltimore City County, MD" alias to FIPS 24510', () => {
+    const obs = parseRow(
+      baseRow({ REGION: 'Baltimore City County, MD', STATE_CODE: 'MD' }),
+      FIPS_INDEX,
+    );
+    const salePrice = obs.find((o) => o.metric === 'median_sale_price');
+    expect(salePrice?.fips).toBe('24510');
+  });
+
+  it('does not resolve VA Montgomery County to MD FIPS 24031 (state collision)', () => {
+    const obs = parseRow(
+      baseRow({ REGION: 'Montgomery County, VA', STATE_CODE: 'VA' }),
+      FIPS_INDEX,
+    );
+    expect(obs).toHaveLength(0);
+  });
+
+  it('does not resolve VA Frederick County to MD FIPS 24021 (state collision)', () => {
+    const obs = parseRow(
+      baseRow({ REGION: 'Frederick County, VA', STATE_CODE: 'VA' }),
+      FIPS_INDEX,
+    );
+    expect(obs).toHaveLength(0);
   });
 });
