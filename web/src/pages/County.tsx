@@ -7,8 +7,7 @@ import { SnapshotGrid } from '../components/county/SnapshotGrid.js';
 import { BigChart } from '../components/county/BigChart.js';
 import { Affordability } from '../components/county/Affordability.js';
 import { MarketHealthBreakdown } from '../components/county/MarketHealthBreakdown.js';
-import { ForecastCone } from '../components/county/ForecastCone.js';
-import { FederalExposure } from '../components/county/FederalExposure.js';
+import { FederalEmploymentChart } from '../components/county/FederalEmploymentChart.js';
 import { Container } from '../components/Container.js';
 
 export function County() {
@@ -64,12 +63,8 @@ export function County() {
         </div>
       </Container>
 
-      <Container className="mt-16">
-        <ForecastCone />
-      </Container>
-
       <Container className="mt-16 mb-24">
-        <FederalExposure />
+        <FederalEmploymentChart county={data} />
       </Container>
     </div>
   );

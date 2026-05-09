@@ -1,16 +1,19 @@
 import { MetricCard } from '../MetricCard.js';
 import { HealthCard } from './HealthCard.js';
 import type { MetroSnapshot } from '../../lib/metro.js';
+import type { FederalEmploymentDmv } from '../../api.js';
+import { formatNumber } from '../../lib/format.js';
 
 interface MetricStripProps {
   metro: MetroSnapshot;
+  fedEmployment?: FederalEmploymentDmv | undefined;
 }
 
 function fmt(n: number | undefined, formatter: (v: number) => string, fallback = '—'): string {
   return n !== undefined ? formatter(n) : fallback;
 }
 
-export function MetricStrip({ metro }: MetricStripProps) {
+export function MetricStrip({ metro, fedEmployment }: MetricStripProps) {
   const mortgageDisplay = metro.mortgageRate !== undefined
     ? `${(metro.mortgageRate * 100).toFixed(2)}%`
     : '—';
@@ -28,14 +31,22 @@ export function MetricStrip({ metro }: MetricStripProps) {
     (v) => `$${(v / 1000).toFixed(0)}K`,
   );
 
+  const fedJobsDisplay = fedEmployment ? formatNumber(fedEmployment.total) : '—';
+
   return (
     <div className="max-w-container mx-auto px-8 mt-8">
-      <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+      <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
         <MetricCard
           label="Metro median sale price"
           value={salePriceDisplay}
           change={metro.medianSalePriceYoY}
           source="Redfin · latest"
+        />
+        <MetricCard
+          label="DMV federal jobs"
+          value={fedJobsDisplay}
+          change={fedEmployment?.totalYoY}
+          source="BLS QCEW"
         />
         <MetricCard
           label="30-yr fixed mortgage"

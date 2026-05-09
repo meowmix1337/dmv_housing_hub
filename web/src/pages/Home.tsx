@@ -1,5 +1,5 @@
 import { useQueries, useQuery } from '@tanstack/react-query';
-import { getCountySummary, getMortgageRates } from '../api.js';
+import { getCountySummary, getFederalEmploymentDmv, getMortgageRates } from '../api.js';
 import { deriveMetroSnapshot } from '../lib/metro.js';
 import { DMV_FIPS } from '../lib/fips.js';
 import { Hero } from '../components/home/Hero.js';
@@ -20,6 +20,11 @@ export function Home() {
   const mortgageResult = useQuery({
     queryKey: ['mortgage-rates'] as const,
     queryFn: getMortgageRates,
+  });
+
+  const fedEmploymentResult = useQuery({
+    queryKey: ['federal-employment-dmv'] as const,
+    queryFn: getFederalEmploymentDmv,
   });
 
   const counties = countyResults
@@ -47,7 +52,7 @@ export function Home() {
     <div className="bg-bg-paper min-h-screen">
       <Hero />
 
-      {metro && <MetricStrip metro={metro} />}
+      {metro && <MetricStrip metro={metro} fedEmployment={fedEmploymentResult.data} />}
 
       <Container className="mt-14">
         <HexMap counties={counties} />
@@ -61,7 +66,7 @@ export function Home() {
 
       {mortgageRates && (
         <Container className="mt-20 mb-24">
-          <WhatsDriving mortgageRates={mortgageRates} />
+          <WhatsDriving mortgageRates={mortgageRates} fedEmployment={fedEmploymentResult.data} />
         </Container>
       )}
     </div>

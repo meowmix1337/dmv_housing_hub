@@ -43,7 +43,7 @@ interface CachedRun {
   observations: Observation[];
 }
 
-const SOURCES = ['fred', 'census', 'bls', 'zillow', 'redfin'] as const;
+const SOURCES = ['fred', 'census', 'bls', 'zillow', 'redfin', 'qcew'] as const;
 
 async function loadAllObservations(): Promise<{
   observations: Observation[];
@@ -118,6 +118,8 @@ function cadenceFor(source: string): ManifestSourceEntry['cadence'] {
       return 'monthly';
     case 'redfin':
       return 'weekly';
+    case 'qcew':
+      return 'quarterly';
     default:
       return 'monthly';
   }
@@ -153,6 +155,9 @@ function buildCountySummary(
   const saleToListObs = forCounty.filter((o) => o.metric === 'sale_to_list_ratio');
   const pctAboveListObs = forCounty.filter((o) => o.metric === 'pct_sold_above_list');
   const incomeObs = forCounty.filter((o) => o.metric === 'median_household_income');
+  const fedObs = forCounty.filter(
+    (o) => o.metric === 'federal_employment' && o.source === 'qcew',
+  );
 
   const series: CountySeries = {};
   if (fhfaHpiObs.length) series.fhfaHpi = toMetricPoints(fhfaHpiObs);
@@ -218,6 +223,22 @@ function buildCountySummary(
 
   if (incomeObs.length) {
     summary.medianHouseholdIncome = toMetricPoints(incomeObs).at(-1)?.value;
+  }
+
+  if (fedObs.length) {
+    series.federalEmployment = toMetricPoints(fedObs);
+    const latest = series.federalEmployment.at(-1);
+    if (latest) {
+      summary.current.federalEmployment = latest.value;
+      summary.current.federalEmploymentAsOf = latest.date;
+      const yearAgo = series.federalEmployment.findLast(
+        (p: MetricPoint) => p.date <= isoYearAgo(latest.date),
+      );
+      if (yearAgo) {
+        summary.current.federalEmploymentYoY =
+          (latest.value - yearAgo.value) / yearAgo.value;
+      }
+    }
   }
 
   // Property tax rate (static lookup)
@@ -328,6 +349,42 @@ async function main(): Promise<void> {
     const path = join(COUNTIES_DIR, `${county.fips}.json`);
     await writeJsonAtomic(path, summary);
     log.info({ fips: county.fips, name: county.name, path }, 'wrote county summary');
+  }
+
+  const fedAll = observations.filter(
+    (o) => o.metric === 'federal_employment' && o.source === 'qcew',
+  );
+  if (fedAll.length) {
+    const byDate = new Map<string, number>();
+    const countByDate = new Map<string, number>();
+    for (const o of fedAll) {
+      if (!DMV_COUNTIES.some((c) => c.fips === o.fips)) continue;
+      byDate.set(o.observedAt, (byDate.get(o.observedAt) ?? 0) + o.value);
+      countByDate.set(o.observedAt, (countByDate.get(o.observedAt) ?? 0) + 1);
+    }
+    const fullQuarters = [...byDate.entries()]
+      .filter(([d]) => countByDate.get(d) === DMV_COUNTIES.length)
+      .map(([date, value]) => ({ date, value }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+    if (fullQuarters.length) {
+      const latest = fullQuarters.at(-1)!;
+      const yearAgo = fullQuarters.findLast((p) => p.date <= isoYearAgo(latest.date));
+      const yoy = yearAgo ? (latest.value - yearAgo.value) / yearAgo.value : undefined;
+      await writeJsonAtomic(join(METRICS_DIR, 'federal-employment-dmv.json'), {
+        metric: 'federal_employment',
+        fips: 'DMV',
+        unit: 'count',
+        cadence: 'quarterly',
+        source: 'qcew',
+        lastUpdated: generatedAt,
+        total: latest.value,
+        totalYoY: yoy,
+        asOf: latest.date,
+        points: fullQuarters,
+      });
+    } else {
+      log.warn('no fully-disclosed DMV quarters; skipping federal-employment-dmv.json');
+    }
   }
 
   const finalManifest: Manifest = { generatedAt, sources: manifest };

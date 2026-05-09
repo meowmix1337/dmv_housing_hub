@@ -88,6 +88,10 @@ A single workflow (`.github/workflows/ingest.yml`) runs monthly (5th at 14:00 UT
 
 Every push to `main` deploys in ~60 seconds.
 
+## Roadmap / TODO
+
+- **County price forecasts** — the County page previously showed a "2026 price forecast" placeholder card. Removed in 2026-05 because no forecast data source is wired up yet. Revisit when a free, redistributable forecast feed (e.g., Bright MLS, NAR, or Zillow ZHVF) is ingested. Hooks already exist on the type side (`CountyForecast` in `shared/src/types.ts`, `CountySummary.forecasts?`), and `Methodology.tsx` still references the gap.
+
 ## License
 
 MIT. Data is sourced from public agencies; cite them per `DATA_SOURCES.md`.
