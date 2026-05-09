@@ -61,8 +61,8 @@ export function PriceChart({ data, unit, cadence = 'monthly', height = 320 }: Pr
         />
         <Tooltip
           contentStyle={{ fontSize: 12 }}
-          labelFormatter={(d: string) => d}
-          formatter={(v: number | string) => formatter(Number(v))}
+          labelFormatter={(d) => String(d ?? '')}
+          formatter={(v) => formatter(Number(v ?? 0))}
         />
         <Line
           type="monotone"

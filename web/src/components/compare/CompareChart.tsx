@@ -65,8 +65,8 @@ export function CompareChart({ counties, metric }: CompareChartProps) {
             width={80}
           />
           <Tooltip
-            formatter={(v: number) => metric.format(v)}
-            labelFormatter={(d: string) => d}
+            formatter={(v) => typeof v === 'number' ? metric.format(v) : ''}
+            labelFormatter={(d) => String(d ?? '')}
           />
           {counties.map((c, i) => (
             <Line

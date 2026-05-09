@@ -38,7 +38,7 @@ function MortgageChart({ series }: { series: MetricSeries }) {
           domain={['auto', 'auto']} axisLine={false} tickLine={false} width={36}
           tickFormatter={(v: number) => `${v.toFixed(1)}%`} />
         <Tooltip contentStyle={{ fontSize: 12, fontFamily: 'var(--font-mono)', borderRadius: 8, border: '1px solid #E7E2D8' }}
-          formatter={(v: number) => [`${v.toFixed(2)}%`, '30-yr rate']} />
+          formatter={(v) => [typeof v === 'number' ? `${v.toFixed(2)}%` : '', '30-yr rate']} />
         <Area type="monotone" dataKey="value" stroke="#1d4ed8" strokeWidth={1.5}
           fill="url(#mort-grad)" dot={false} />
       </AreaChart>
