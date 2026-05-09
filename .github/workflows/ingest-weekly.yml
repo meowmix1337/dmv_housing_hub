@@ -6,6 +6,10 @@ on:
     - cron: '0 17 * * 4'  # 17:00 UTC = 13:00 ET, Thursdays
   workflow_dispatch:
 
+concurrency:
+  group: data-commit
+  cancel-in-progress: false
+
 jobs:
   ingest:
     runs-on: ubuntu-latest
@@ -41,7 +45,13 @@ jobs:
           git add web/public/data/
           if git diff --staged --quiet; then
             echo "No data changes"
-          else
-            git commit -m "data: weekly refresh (fred, redfin)"
-            git push
+            exit 0
           fi
+          git commit -m "data: weekly refresh (fred, redfin)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && exit 0
+            echo "push failed, retrying ($i)..."
+            sleep $((RANDOM % 5 + 2))
+          done
+          echo "push failed after retries" >&2
+          exit 1

@@ -6,6 +6,10 @@ on:
     - cron: '0 14 15 12 *'  # 14:00 UTC, December 15th
   workflow_dispatch:
 
+concurrency:
+  group: data-commit
+  cancel-in-progress: false
+
 jobs:
   ingest:
     runs-on: ubuntu-latest
@@ -43,7 +47,13 @@ jobs:
           git add web/public/data/
           if git diff --staged --quiet; then
             echo "No data changes"
-          else
-            git commit -m "data: annual refresh (census ACS, fred county HPI)"
-            git push
+            exit 0
           fi
+          git commit -m "data: annual refresh (census ACS, fred county HPI)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && exit 0
+            echo "push failed, retrying ($i)..."
+            sleep $((RANDOM % 5 + 2))
+          done
+          echo "push failed after retries" >&2
+          exit 1
