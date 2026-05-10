@@ -75,6 +75,7 @@ export function Home() {
             mortgageRates={mortgageRates}
             fedEmployment={fedEmploymentResult.data}
             inventory={inventoryResult.data}
+            counties={counties}
           />
         </Container>
       )}
