@@ -2,7 +2,7 @@
   "fips": "24033",
   "name": "Prince George's County",
   "jurisdiction": "MD",
-  "lastUpdated": "2026-05-10T18:17:43.564Z",
+  "lastUpdated": "2026-05-10T18:21:07.149Z",
   "current": {
     "zhvi": 428633.1022635717,
     "zhviYoY": -0.0039452622510878195,
@@ -19,7 +19,7 @@
     "activeListings": 2087,
     "activeListingsYoY": 0.16787912702853947,
     "marketHealthScore": 58,
-    "affordabilityIndex": 0.3170833681810206
+    "affordabilityIndex": 96.62488634491454
   },
   "series": {
     "fhfaHpi": [

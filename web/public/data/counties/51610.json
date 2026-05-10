@@ -2,7 +2,7 @@
   "fips": "51610",
   "name": "Falls Church city",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-10T18:17:43.564Z",
+  "lastUpdated": "2026-05-10T18:21:07.149Z",
   "current": {
     "zhvi": 1148927.2686233965,
     "zhviYoY": 0.03776396873771523,
@@ -19,7 +19,7 @@
     "activeListings": 18,
     "activeListingsYoY": 0.125,
     "marketHealthScore": 68,
-    "affordabilityIndex": 0.6307980537098835
+    "affordabilityIndex": 50.92084127991365
   },
   "series": {
     "fhfaHpi": [

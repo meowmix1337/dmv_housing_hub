@@ -2,7 +2,7 @@
   "fips": "51179",
   "name": "Stafford County",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-10T18:17:43.564Z",
+  "lastUpdated": "2026-05-10T18:21:07.149Z",
   "current": {
     "zhvi": 540303.7283978564,
     "zhviYoY": 0.009108014181517278,
@@ -19,7 +19,7 @@
     "activeListings": 404,
     "activeListingsYoY": 0.23547400611620795,
     "marketHealthScore": 61,
-    "affordabilityIndex": 0.2922064299465062
+    "affordabilityIndex": 103.70046940717259
   },
   "series": {
     "fhfaHpi": [

@@ -2,7 +2,7 @@
   "fips": "24510",
   "name": "Baltimore city",
   "jurisdiction": "MD",
-  "lastUpdated": "2026-05-10T18:17:43.564Z",
+  "lastUpdated": "2026-05-10T18:21:07.149Z",
   "current": {
     "zhvi": 184591.72379031172,
     "zhviYoY": -0.011353495862475246,
@@ -19,7 +19,7 @@
     "activeListings": 2547,
     "activeListingsYoY": 0.07741116751269035,
     "marketHealthScore": 54,
-    "affordabilityIndex": 0.3340995704641642
+    "affordabilityIndex": 107.3042256280754
   },
   "series": {
     "fhfaHpi": [

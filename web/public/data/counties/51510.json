@@ -2,7 +2,7 @@
   "fips": "51510",
   "name": "Alexandria city",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-10T18:17:43.564Z",
+  "lastUpdated": "2026-05-10T18:21:07.149Z",
   "current": {
     "zhvi": 685515.2306786352,
     "zhviYoY": 0.011929583794131742,
@@ -19,7 +19,7 @@
     "activeListings": 366,
     "activeListingsYoY": 0.18064516129032257,
     "marketHealthScore": 69,
-    "affordabilityIndex": 0.41062222968672807
+    "affordabilityIndex": 75.7327453888794
   },
   "series": {
     "fhfaHpi": [
