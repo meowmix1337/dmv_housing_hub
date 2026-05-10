@@ -1,5 +1,7 @@
 import 'dotenv/config';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { argv } from 'node:process';
 import { z } from 'zod';
 import type {
   ActiveListingsBreakdown,
@@ -588,7 +590,9 @@ function errMessage(err: unknown): string {
   return String(err);
 }
 
-main().catch((err) => {
-  log.fatal({ err: errMessage(err) }, 'unhandled error in build-county-pages');
-  process.exit(1);
-});
+if (argv[1] && fileURLToPath(import.meta.url) === argv[1]) {
+  main().catch((err) => {
+    log.fatal({ err: errMessage(err) }, 'unhandled error in build-county-pages');
+    process.exit(1);
+  });
+}
