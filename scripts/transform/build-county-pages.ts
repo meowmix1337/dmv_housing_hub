@@ -7,6 +7,7 @@ import type {
   ActiveListingsDmv,
   CountySeries,
   CountySummary,
+  FederalEmploymentDmv,
   Manifest,
   ManifestSourceEntry,
   MetricPoint,
@@ -446,8 +447,10 @@ async function main(): Promise<void> {
   if (fedAll.length) {
     const byDate = new Map<string, number>();
     const countByDate = new Map<string, number>();
+    const contributingFipsSet = new Set<string>();
     for (const o of fedAll) {
       if (!DMV_COUNTIES.some((c) => c.fips === o.fips)) continue;
+      contributingFipsSet.add(o.fips);
       byDate.set(o.observedAt, (byDate.get(o.observedAt) ?? 0) + o.value);
       countByDate.set(o.observedAt, (countByDate.get(o.observedAt) ?? 0) + 1);
     }
@@ -459,18 +462,26 @@ async function main(): Promise<void> {
       const latest = fullQuarters.at(-1)!;
       const yearAgo = fullQuarters.findLast((p) => p.date <= isoYearAgo(latest.date));
       const yoy = yearAgo ? (latest.value - yearAgo.value) / yearAgo.value : undefined;
-      await writeJsonAtomic(join(METRICS_DIR, 'federal-employment-dmv.json'), {
+      const contributingFips = [...contributingFipsSet].sort();
+      const missingFips = DMV_COUNTIES.map((c) => c.fips)
+        .filter((f) => !contributingFipsSet.has(f))
+        .sort();
+      const fedFile: FederalEmploymentDmv = {
         metric: 'federal_employment',
         fips: 'DMV',
         unit: 'count',
         cadence: 'quarterly',
         source: 'qcew',
         lastUpdated: generatedAt,
+        aggregation: 'in-repo county sum',
+        contributingFips,
+        coverage: { fips: contributingFips, missing: missingFips },
         total: latest.value,
         totalYoY: yoy,
         asOf: latest.date,
         points: fullQuarters,
-      });
+      };
+      await writeJsonAtomic(join(METRICS_DIR, 'federal-employment-dmv.json'), fedFile);
     } else {
       log.warn('no fully-disclosed DMV quarters; skipping federal-employment-dmv.json');
     }
@@ -539,6 +550,8 @@ async function main(): Promise<void> {
         cadence: 'monthly',
         source: 'redfin',
         lastUpdated: generatedAt,
+        aggregation: 'in-repo county sum',
+        contributingFips: covered,
         asOf: last.date,
         latest: {
           total: last.value,

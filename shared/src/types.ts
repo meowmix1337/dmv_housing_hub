@@ -176,6 +176,10 @@ export interface ActiveListingsDmv {
   cadence: 'monthly';
   source: 'redfin';
   lastUpdated: string;
+  /** Provenance: this aggregate is computed in-repo, not published by Redfin. */
+  aggregation: 'in-repo county sum';
+  /** FIPS that contributed at least one observation to this aggregate. */
+  contributingFips: string[];
   asOf: string;
   latest: {
     total: number;
@@ -184,4 +188,23 @@ export interface ActiveListingsDmv {
   latestYoY: number | undefined;
   series: ActiveListingsBreakdown;
   coverage: { fips: string[]; missing: string[] };
+}
+
+export interface FederalEmploymentDmv {
+  metric: 'federal_employment';
+  fips: 'DMV';
+  unit: 'count';
+  cadence: 'quarterly';
+  source: 'qcew';
+  lastUpdated: string;
+  /** Provenance: this aggregate is computed in-repo, not published by QCEW. */
+  aggregation: 'in-repo county sum';
+  /** FIPS that contributed at least one observation to this aggregate. */
+  contributingFips: string[];
+  /** FIPS attempted vs. FIPS missing data this cycle. */
+  coverage: { fips: string[]; missing: string[] };
+  total: number;
+  totalYoY: number | undefined;
+  asOf: string;
+  points: MetricPoint[];
 }
