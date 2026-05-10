@@ -6,10 +6,15 @@ import { IngestError } from '../lib/errors.js';
 import { DMV_COUNTIES } from '../lib/counties.js';
 import type { DataSource } from './DataSource.js';
 
-const ACS_YEAR = 2023;
+const ACS_YEAR = 2024;
 const BASE_URL = `https://api.census.gov/data/${ACS_YEAR}/acs/acs5`;
 const OBSERVED_AT = `${ACS_YEAR}-01-01`;
 const SENTINEL = '-666666666';
+
+/** Census ACS pairs each estimate variable `_001E` with a margin-of-error `_001M`. */
+function moeVariableFor(estimateVariable: string): string {
+  return estimateVariable.replace(/E$/, 'M');
+}
 
 interface VariableSpec {
   variable: string;
@@ -63,6 +68,7 @@ export function parseRows(raw: unknown, dmvFipsSet: Set<string>): Observation[] 
   const variableCols = VARIABLES.map((spec) => ({
     spec,
     col: colIndex.get(spec.variable),
+    moeCol: colIndex.get(moeVariableFor(spec.variable)),
   }));
 
   for (const { spec, col } of variableCols) {
@@ -72,7 +78,11 @@ export function parseRows(raw: unknown, dmvFipsSet: Set<string>): Observation[] 
   }
 
   const minRequiredLen =
-    Math.max(stateCol, countyCol, ...variableCols.map((v) => v.col ?? -1)) + 1;
+    Math.max(
+      stateCol,
+      countyCol,
+      ...variableCols.flatMap((v) => [v.col ?? -1, v.moeCol ?? -1]),
+    ) + 1;
 
   const all: Observation[] = [];
 
@@ -92,7 +102,7 @@ export function parseRows(raw: unknown, dmvFipsSet: Set<string>): Observation[] 
     const fips = `${stateFips.padStart(2, '0')}${countyFips.padStart(3, '0')}`;
     if (!dmvFipsSet.has(fips)) continue;
 
-    for (const { spec, col } of variableCols) {
+    for (const { spec, col, moeCol } of variableCols) {
       if (col === undefined) continue;
 
       const cell = row[col];
@@ -107,7 +117,16 @@ export function parseRows(raw: unknown, dmvFipsSet: Set<string>): Observation[] 
         continue;
       }
 
-      all.push({
+      let moe: number | undefined;
+      if (moeCol !== undefined) {
+        const moeCell = row[moeCol];
+        if (moeCell !== null && moeCell !== SENTINEL) {
+          const moeNum = Number(moeCell);
+          if (Number.isFinite(moeNum) && moeNum >= 0) moe = moeNum;
+        }
+      }
+
+      const obs: Observation = {
         source: 'census',
         series: spec.variable,
         fips,
@@ -115,7 +134,9 @@ export function parseRows(raw: unknown, dmvFipsSet: Set<string>): Observation[] 
         observedAt: OBSERVED_AT,
         value: num,
         unit: spec.unit,
-      });
+      };
+      if (moe !== undefined) obs.moe = moe;
+      all.push(obs);
     }
   }
 
@@ -127,7 +148,7 @@ async function fetchStateGroup(
   countyParam: string,
   apiKey: string,
 ): Promise<unknown> {
-  const variableList = VARIABLES.map((v) => v.variable).join(',');
+  const variableList = VARIABLES.flatMap((v) => [v.variable, moeVariableFor(v.variable)]).join(',');
   const url =
     `${BASE_URL}?get=NAME,${variableList}` +
     `&for=county:${countyParam}&in=state:${stateFips}&key=${apiKey}`;

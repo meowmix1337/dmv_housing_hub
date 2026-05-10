@@ -22,7 +22,35 @@ describe('parseRows', () => {
     expect(mc!.unit).toBe('USD');
     expect(mc!.source).toBe('census');
     expect(mc!.series).toBe('B19013_001E');
-    expect(mc!.observedAt).toBe('2023-01-01'); // tied to ACS_YEAR = 2023 in census.ts; update when bumped
+    expect(mc!.observedAt).toBe('2024-01-01'); // tied to ACS_YEAR = 2024 in census.ts; update when bumped
+  });
+
+  it('captures margin-of-error from companion _001M columns', () => {
+    const fixture: (string | null)[][] = [
+      ['NAME', 'B19013_001E', 'B19013_001M', 'B25077_001E', 'B25077_001M', 'state', 'county'],
+      ['Montgomery County, Maryland', '120000', '4500', '550000', '15000', '24', '031'],
+    ];
+    const result = parseRows(fixture, DMV_FIPS_SET);
+    const inc = result.find((o) => o.metric === 'median_household_income');
+    expect(inc?.moe).toBe(4500);
+    const val = result.find((o) => o.metric === 'median_home_value');
+    expect(val?.moe).toBe(15000);
+  });
+
+  it('omits moe when MOE column is absent or has a sentinel/null value', () => {
+    const fixture: (string | null)[][] = [
+      ['NAME', 'B19013_001E', 'B19013_001M', 'B25077_001E', 'state', 'county'],
+      ['Montgomery County, Maryland', '120000', null, '550000', '24', '031'],
+      ['District of Columbia', '95000', '-666666666', '680000', '11', '001'],
+    ];
+    const result = parseRows(fixture, DMV_FIPS_SET);
+    const incMc = result.find((o) => o.fips === '24031' && o.metric === 'median_household_income');
+    expect(incMc?.moe).toBeUndefined();
+    const incDc = result.find((o) => o.fips === '11001' && o.metric === 'median_household_income');
+    expect(incDc?.moe).toBeUndefined();
+    // and median_home_value has no MOE column at all in this fixture
+    const valMc = result.find((o) => o.fips === '24031' && o.metric === 'median_home_value');
+    expect(valMc?.moe).toBeUndefined();
   });
 
   it('filters sentinel "-666666666" cells and keeps other cells in the same row', () => {
