@@ -13,3 +13,4 @@ export const COUNTIES_DIR = resolve(WEB_DATA_DIR, 'counties');
 export const METRICS_DIR = resolve(WEB_DATA_DIR, 'metrics');
 export const GEO_DIR = resolve(WEB_DATA_DIR, 'geo');
 export const MANIFEST_PATH = resolve(WEB_DATA_DIR, 'manifest.json');
+export const DATA_SOURCES_MD_PATH = resolve(REPO_ROOT, 'DATA_SOURCES.md');

@@ -17,9 +17,11 @@ import { readJson, writeJsonAtomic, ensureDir } from '../lib/storage.js';
 import {
   CACHE_DIR,
   COUNTIES_DIR,
+  DATA_SOURCES_MD_PATH,
   MANIFEST_PATH,
   METRICS_DIR,
 } from '../lib/paths.js';
+import { readVerificationFromMarkdown } from '../lib/verification.js';
 import { DMV_COUNTIES } from '../lib/counties.js';
 import { PROPERTY_TAX_RATES } from '../lib/property-tax-rates.js';
 import { getPopulationByFips } from '../lib/populations.js';
@@ -558,7 +560,13 @@ async function main(): Promise<void> {
     }
   }
 
-  const finalManifest: Manifest = { generatedAt, sources: manifest };
+  const verificationRecords = await readVerificationFromMarkdown(DATA_SOURCES_MD_PATH);
+  const verifiedBySource = new Map(verificationRecords.map((r) => [r.source, r.lastVerified]));
+  const enrichedSources: ManifestSourceEntry[] = manifest.map((entry) => {
+    const lastVerified = verifiedBySource.get(entry.name);
+    return lastVerified ? { ...entry, lastVerified } : entry;
+  });
+  const finalManifest: Manifest = { generatedAt, sources: enrichedSources };
   await writeJsonAtomic(MANIFEST_PATH, finalManifest);
   log.info({ counties: DMV_COUNTIES.length }, 'transform complete');
 }

@@ -64,6 +64,8 @@ export interface Observation {
   observedAt: string;
   value: number;
   unit: Unit;
+  /** Margin of error at 90% CI (ACS-style); absent for sources that don't publish one. */
+  moe?: number;
 }
 
 export interface MetricPoint {
@@ -152,6 +154,8 @@ export interface ManifestSourceEntry {
   lastUpdated: string;
   cadence: Cadence;
   status: 'ok' | 'stale' | 'error';
+  /** ISO date of the last manual spot-check; populated from DATA_SOURCES.md's Verification section. */
+  lastVerified?: string;
 }
 
 export interface Manifest {
