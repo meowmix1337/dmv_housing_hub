@@ -61,21 +61,28 @@ export function Methodology() {
             </p>
           </Section>
 
-          <Section title="Affordability index">
+          <Section title="Affordability index (NAR HAI)">
             <p className="mb-3">
-              The affordability index is the ratio of estimated monthly housing costs (PITI) to
-              median monthly household income. A ratio at or below 0.30 (30%) satisfies the standard
-              &ldquo;30% rule.&rdquo;
+              We follow the National Association of Realtors&apos; Housing Affordability Index
+              convention: <code>HAI = (median household income / qualifying income) × 100</code>.
+              <strong> Higher means more affordable.</strong> A value of 100 means the median-income
+              household earns exactly enough to qualify for a median-priced home; above 100 is a
+              surplus (more affordable than the threshold), below 100 is a shortfall (less
+              affordable).
             </p>
             <p className="mb-3">
-              Monthly costs assume: 80% LTV (20% down payment), 30-year fixed mortgage at the
-              national average rate from Freddie Mac PMMS, county-specific property tax rate from
-              public tax records, and 0.35% of home value per year for insurance.
+              <em>Qualifying income</em> is the income required so that the principal-and-interest
+              payment on an 80%-LTV 30-year fixed mortgage at the latest Freddie Mac PMMS rate
+              equals 25% of monthly gross income (NAR&apos;s standard qualifying ratio). Tax and
+              insurance are excluded from the qualifier — that is the NAR convention; including
+              them would over-state local cost burden vs. the published index.
             </p>
             <p>
-              Income is the ACS 5-year median household income for the county. The index uses the
-              Zillow ZHVI as the home price input. All three inputs must be present; otherwise the
-              field is omitted.
+              One substitution: NAR uses median <em>family</em> income; we substitute median{' '}
+              <em>household</em> income from ACS B19013 because that is the field already on each
+              county summary. Household income is typically lower than family income, so this
+              index reads slightly more conservative than NAR&apos;s national series — a county
+              showing 90 here would likely be 95–100 under NAR&apos;s exact methodology.
             </p>
           </Section>
 

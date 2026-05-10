@@ -20,7 +20,7 @@ const FULL_COUNTY: CountySummary = {
     saleToListRatio: 1.01, pctSoldAboveList: 0.45,
     federalEmployment: 38_500, federalEmploymentYoY: -0.02,
     federalEmploymentAsOf: '2025-09-01',
-    marketHealthScore: 72, affordabilityIndex: 0.38,
+    marketHealthScore: 72, affordabilityIndex: 85,
   },
   series: {
     fhfaHpi: [{ date: '2020-01-01', value: 280 }, { date: '2023-01-01', value: 340 }],

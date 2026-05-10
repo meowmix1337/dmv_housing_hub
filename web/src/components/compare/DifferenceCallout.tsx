@@ -12,7 +12,9 @@ const SPREAD_THRESHOLDS: Record<string, number> = {
   daysOnMarket: 15,
   monthsSupply: 2,
   marketHealthScore: 30,
-  affordabilityIndex: 0.2,
+  // NAR HAI spread in absolute index points; ~5 points is the smallest gap
+  // we want to flag (about 5% of qualifying income).
+  affordabilityIndex: 5,
 };
 
 export function DifferenceCallout({ counties, metric }: DifferenceCalloutProps) {
@@ -25,7 +27,7 @@ export function DifferenceCallout({ counties, metric }: DifferenceCalloutProps) 
   const sorted = [...values].sort((a, b) => a.value - b.value);
   const low = sorted[0]!;
   const high = sorted[sorted.length - 1]!;
-  const spread = metric.id === 'zhvi' || metric.id === 'medianSalePrice' || metric.id === 'affordabilityIndex'
+  const spread = metric.id === 'zhvi' || metric.id === 'medianSalePrice'
     ? (high.value - low.value) / low.value
     : high.value - low.value;
 

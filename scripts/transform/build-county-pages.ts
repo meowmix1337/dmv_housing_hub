@@ -7,6 +7,7 @@ import type {
   ActiveListingsDmv,
   CountySeries,
   CountySummary,
+  FederalEmploymentDmv,
   Manifest,
   ManifestSourceEntry,
   MetricPoint,
@@ -17,9 +18,11 @@ import { readJson, writeJsonAtomic, ensureDir } from '../lib/storage.js';
 import {
   CACHE_DIR,
   COUNTIES_DIR,
+  DATA_SOURCES_MD_PATH,
   MANIFEST_PATH,
   METRICS_DIR,
 } from '../lib/paths.js';
+import { readVerificationFromMarkdown } from '../lib/verification.js';
 import { DMV_COUNTIES } from '../lib/counties.js';
 import { PROPERTY_TAX_RATES } from '../lib/property-tax-rates.js';
 import { getPopulationByFips } from '../lib/populations.js';
@@ -359,7 +362,6 @@ function buildCountySummary(
   if (mortgageRate !== undefined) {
     const ai = affordabilityIndex({
       medianSalePrice: summary.current.medianSalePrice,
-      propertyTaxRate: taxRate,
       medianHouseholdIncome: summary.medianHouseholdIncome,
       mortgageRate,
     });
@@ -445,8 +447,10 @@ async function main(): Promise<void> {
   if (fedAll.length) {
     const byDate = new Map<string, number>();
     const countByDate = new Map<string, number>();
+    const contributingFipsSet = new Set<string>();
     for (const o of fedAll) {
       if (!DMV_COUNTIES.some((c) => c.fips === o.fips)) continue;
+      contributingFipsSet.add(o.fips);
       byDate.set(o.observedAt, (byDate.get(o.observedAt) ?? 0) + o.value);
       countByDate.set(o.observedAt, (countByDate.get(o.observedAt) ?? 0) + 1);
     }
@@ -458,18 +462,26 @@ async function main(): Promise<void> {
       const latest = fullQuarters.at(-1)!;
       const yearAgo = fullQuarters.findLast((p) => p.date <= isoYearAgo(latest.date));
       const yoy = yearAgo ? (latest.value - yearAgo.value) / yearAgo.value : undefined;
-      await writeJsonAtomic(join(METRICS_DIR, 'federal-employment-dmv.json'), {
+      const contributingFips = [...contributingFipsSet].sort();
+      const missingFips = DMV_COUNTIES.map((c) => c.fips)
+        .filter((f) => !contributingFipsSet.has(f))
+        .sort();
+      const fedFile: FederalEmploymentDmv = {
         metric: 'federal_employment',
         fips: 'DMV',
         unit: 'count',
         cadence: 'quarterly',
         source: 'qcew',
         lastUpdated: generatedAt,
+        aggregation: 'in-repo county sum',
+        contributingFips,
+        coverage: { fips: contributingFips, missing: missingFips },
         total: latest.value,
         totalYoY: yoy,
         asOf: latest.date,
         points: fullQuarters,
-      });
+      };
+      await writeJsonAtomic(join(METRICS_DIR, 'federal-employment-dmv.json'), fedFile);
     } else {
       log.warn('no fully-disclosed DMV quarters; skipping federal-employment-dmv.json');
     }
@@ -538,6 +550,8 @@ async function main(): Promise<void> {
         cadence: 'monthly',
         source: 'redfin',
         lastUpdated: generatedAt,
+        aggregation: 'in-repo county sum',
+        contributingFips: covered,
         asOf: last.date,
         latest: {
           total: last.value,
@@ -558,7 +572,13 @@ async function main(): Promise<void> {
     }
   }
 
-  const finalManifest: Manifest = { generatedAt, sources: manifest };
+  const verificationRecords = await readVerificationFromMarkdown(DATA_SOURCES_MD_PATH);
+  const verifiedBySource = new Map(verificationRecords.map((r) => [r.source, r.lastVerified]));
+  const enrichedSources: ManifestSourceEntry[] = manifest.map((entry) => {
+    const lastVerified = verifiedBySource.get(entry.name);
+    return lastVerified ? { ...entry, lastVerified } : entry;
+  });
+  const finalManifest: Manifest = { generatedAt, sources: enrichedSources };
   await writeJsonAtomic(MANIFEST_PATH, finalManifest);
   log.info({ counties: DMV_COUNTIES.length }, 'transform complete');
 }

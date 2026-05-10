@@ -1,4 +1,10 @@
-import type { ActiveListingsDmv, CountySummary, Manifest, MetricSeries } from '@dmv/shared';
+import type {
+  ActiveListingsDmv,
+  CountySummary,
+  FederalEmploymentDmv,
+  Manifest,
+  MetricSeries,
+} from '@dmv/shared';
 
 const BASE = '/data';
 
@@ -35,19 +41,6 @@ export function getMortgageRates(): Promise<MetricSeries> {
   return getJson<MetricSeries>('/metrics/mortgage-rates.json');
 }
 
-export interface FederalEmploymentDmv {
-  metric: 'federal_employment';
-  fips: 'DMV';
-  unit: 'count';
-  cadence: 'quarterly';
-  source: 'qcew';
-  lastUpdated: string;
-  total: number;
-  totalYoY?: number;
-  asOf: string;
-  points: { date: string; value: number }[];
-}
-
 export function getFederalEmploymentDmv(): Promise<FederalEmploymentDmv> {
   return getJson<FederalEmploymentDmv>('/metrics/federal-employment-dmv.json');
 }
@@ -61,3 +54,4 @@ export function getManifest(): Promise<Manifest> {
 }
 
 export { ApiError };
+export type { FederalEmploymentDmv } from '@dmv/shared';

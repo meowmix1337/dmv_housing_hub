@@ -2,7 +2,7 @@
   "fips": "11001",
   "name": "District of Columbia",
   "jurisdiction": "DC",
-  "lastUpdated": "2026-05-09T19:43:07.594Z",
+  "lastUpdated": "2026-05-10T18:21:07.149Z",
   "current": {
     "zhvi": 583076.9209961476,
     "zhviYoY": -0.029493112500912567,
@@ -19,7 +19,7 @@
     "activeListings": 2755,
     "activeListingsYoY": -0.046052631578947366,
     "marketHealthScore": 50,
-    "affordabilityIndex": 0.4583924772326141
+    "affordabilityIndex": 67.67867656345595
   },
   "series": {
     "fhfaHpi": [
@@ -6471,6 +6471,6 @@
       }
     ]
   },
-  "medianHouseholdIncome": 106287,
+  "medianHouseholdIncome": 109870,
   "propertyTaxRate": 0.0085
 }

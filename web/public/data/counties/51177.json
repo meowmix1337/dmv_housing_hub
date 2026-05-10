@@ -2,7 +2,7 @@
   "fips": "51177",
   "name": "Spotsylvania County",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-09T19:43:07.594Z",
+  "lastUpdated": "2026-05-10T18:21:07.149Z",
   "current": {
     "zhvi": 456349.5257997021,
     "zhviYoY": 0.008463503316974614,
@@ -19,7 +19,7 @@
     "activeListings": 381,
     "activeListingsYoY": 0.20569620253164558,
     "marketHealthScore": 64,
-    "affordabilityIndex": 0.3085257367354804
+    "affordabilityIndex": 100.49932799872612
   },
   "series": {
     "fhfaHpi": [
@@ -3359,6 +3359,6 @@
       }
     ]
   },
-  "medianHouseholdIncome": 109576,
+  "medianHouseholdIncome": 112738,
   "propertyTaxRate": 0.0088
 }

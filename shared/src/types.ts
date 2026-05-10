@@ -64,6 +64,8 @@ export interface Observation {
   observedAt: string;
   value: number;
   unit: Unit;
+  /** Margin of error at 90% CI (ACS-style); absent for sources that don't publish one. */
+  moe?: number;
 }
 
 export interface MetricPoint {
@@ -106,6 +108,12 @@ export interface CountyCurrentSnapshot {
   activeListings?: number;
   activeListingsYoY?: number;
   marketHealthScore?: number;
+  /**
+   * NAR-style Housing Affordability Index. HAI = (median household income / qualifying income) × 100.
+   * 100 means the median-income household exactly qualifies; >100 surplus, <100 shortfall.
+   * Note: NAR uses median family income; we substitute median household income (ACS B19013),
+   * so this index reads slightly more conservative than NAR's published series.
+   */
   affordabilityIndex?: number;
 }
 
@@ -152,6 +160,8 @@ export interface ManifestSourceEntry {
   lastUpdated: string;
   cadence: Cadence;
   status: 'ok' | 'stale' | 'error';
+  /** ISO date of the last manual spot-check; populated from DATA_SOURCES.md's Verification section. */
+  lastVerified?: string;
 }
 
 export interface Manifest {
@@ -166,6 +176,10 @@ export interface ActiveListingsDmv {
   cadence: 'monthly';
   source: 'redfin';
   lastUpdated: string;
+  /** Provenance: this aggregate is computed in-repo, not published by Redfin. */
+  aggregation: 'in-repo county sum';
+  /** FIPS that contributed at least one observation to this aggregate. */
+  contributingFips: string[];
   asOf: string;
   latest: {
     total: number;
@@ -174,4 +188,23 @@ export interface ActiveListingsDmv {
   latestYoY: number | undefined;
   series: ActiveListingsBreakdown;
   coverage: { fips: string[]; missing: string[] };
+}
+
+export interface FederalEmploymentDmv {
+  metric: 'federal_employment';
+  fips: 'DMV';
+  unit: 'count';
+  cadence: 'quarterly';
+  source: 'qcew';
+  lastUpdated: string;
+  /** Provenance: this aggregate is computed in-repo, not published by QCEW. */
+  aggregation: 'in-repo county sum';
+  /** FIPS that contributed at least one observation to this aggregate. */
+  contributingFips: string[];
+  /** FIPS attempted vs. FIPS missing data this cycle. */
+  coverage: { fips: string[]; missing: string[] };
+  total: number;
+  totalYoY: number | undefined;
+  asOf: string;
+  points: MetricPoint[];
 }
