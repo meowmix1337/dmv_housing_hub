@@ -138,6 +138,10 @@ These are deliberately not in v1, but the architecture supports them cleanly:
 
 ---
 
+## DMV boundary
+
+The set of jurisdictions in `shared/src/counties.ts` (`DMV_COUNTIES`) is currently a working set, not a published OMB boundary. See [`docs/dmv-boundary-options.md`](docs/dmv-boundary-options.md) for the candidate boundaries (status quo / MSA-47900 / CSA-548) and the tradeoffs of each. The choice is a project-owner decision pending; in the meantime, every DMV-wide aggregate JSON declares `aggregation: 'in-repo county sum'` and lists `contributingFips` so a reader can identify which jurisdictions actually contributed.
+
 ## TL;DR
 
 > Static JSON precomputed by GitHub Actions, served from Cloudflare Pages. TypeScript everywhere. No runtime backend, no database, $0/month. Build for v1; the architecture has clear migration paths if any assumption changes.
