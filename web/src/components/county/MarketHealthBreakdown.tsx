@@ -80,7 +80,9 @@ export function MarketHealthBreakdown({ county }: MarketHealthBreakdownProps) {
           ))}
         </div>
       )}
-      <p className="text-xs text-fg-3 mt-auto">Composite score · supply, sale-to-list, above-list %, inventory YoY</p>
+      <p className="text-xs text-fg-3 mt-auto">
+        DMV Hub composite (in-house formula) · supply, sale-to-list, above-list %, inventory YoY
+      </p>
     </div>
   );
 }
