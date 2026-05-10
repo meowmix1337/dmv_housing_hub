@@ -2,7 +2,7 @@
   "fips": "51600",
   "name": "Fairfax city",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-09T19:43:07.594Z",
+  "lastUpdated": "2026-05-10T18:17:43.564Z",
   "current": {
     "zhvi": 787164.9570438167,
     "zhviYoY": 0.013220081600730228,
@@ -1655,6 +1655,6 @@
       }
     ]
   },
-  "medianHouseholdIncome": 132774,
+  "medianHouseholdIncome": 132348,
   "propertyTaxRate": 0.01075
 }

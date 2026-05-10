@@ -2,7 +2,7 @@
   "fips": "24027",
   "name": "Howard County",
   "jurisdiction": "MD",
-  "lastUpdated": "2026-05-09T19:43:07.594Z",
+  "lastUpdated": "2026-05-10T18:17:43.564Z",
   "current": {
     "zhvi": 636617.9343221543,
     "zhviYoY": -0.002573800148556691,
@@ -19,7 +19,7 @@
     "activeListings": 379,
     "activeListingsYoY": 0.02710027100271003,
     "marketHealthScore": 75,
-    "affordabilityIndex": 0.2837852117211468
+    "affordabilityIndex": 0.2785155077635838
   },
   "series": {
     "fhfaHpi": [
@@ -6471,6 +6471,6 @@
       }
     ]
   },
-  "medianHouseholdIncome": 146982,
+  "medianHouseholdIncome": 149763,
   "propertyTaxRate": 0.01014
 }

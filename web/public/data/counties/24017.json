@@ -2,7 +2,7 @@
   "fips": "24017",
   "name": "Charles County",
   "jurisdiction": "MD",
-  "lastUpdated": "2026-05-09T19:43:07.594Z",
+  "lastUpdated": "2026-05-10T18:17:43.564Z",
   "current": {
     "zhvi": 450316.4218118216,
     "zhviYoY": -0.006796831327769786,
@@ -19,7 +19,7 @@
     "activeListings": 599,
     "activeListingsYoY": 0.27176220806794055,
     "marketHealthScore": 56,
-    "affordabilityIndex": 0.27305465681778346
+    "affordabilityIndex": 0.2681100766591498
   },
   "series": {
     "fhfaHpi": [
@@ -5243,6 +5243,6 @@
       }
     ]
   },
-  "medianHouseholdIncome": 120592,
+  "medianHouseholdIncome": 122816,
   "propertyTaxRate": 0.01225
 }

@@ -2,7 +2,7 @@
   "fips": "24005",
   "name": "Baltimore County",
   "jurisdiction": "MD",
-  "lastUpdated": "2026-05-09T19:43:07.594Z",
+  "lastUpdated": "2026-05-10T18:17:43.564Z",
   "current": {
     "zhvi": 360187.084741273,
     "zhviYoY": 0.011082490062945214,
@@ -19,7 +19,7 @@
     "activeListings": 1251,
     "activeListingsYoY": 0.04076539101497504,
     "marketHealthScore": 70,
-    "affordabilityIndex": 0.30266263671300253
+    "affordabilityIndex": 0.29981305387236057
   },
   "series": {
     "fhfaHpi": [
@@ -6471,6 +6471,6 @@
       }
     ]
   },
-  "medianHouseholdIncome": 90904,
+  "medianHouseholdIncome": 91768,
   "propertyTaxRate": 0.011
 }

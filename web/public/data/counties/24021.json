@@ -2,7 +2,7 @@
   "fips": "24021",
   "name": "Frederick County",
   "jurisdiction": "MD",
-  "lastUpdated": "2026-05-09T19:43:07.594Z",
+  "lastUpdated": "2026-05-10T18:17:43.564Z",
   "current": {
     "zhvi": 503055.20384232915,
     "zhviYoY": 0.001765247616859764,
@@ -19,7 +19,7 @@
     "activeListings": 621,
     "activeListingsYoY": 0.06335616438356165,
     "marketHealthScore": 68,
-    "affordabilityIndex": 0.3171248117915652
+    "affordabilityIndex": 0.3131114291469677
   },
   "series": {
     "fhfaHpi": [
@@ -6467,6 +6467,6 @@
       }
     ]
   },
-  "medianHouseholdIncome": 120458,
+  "medianHouseholdIncome": 122002,
   "propertyTaxRate": 0.010624
 }
