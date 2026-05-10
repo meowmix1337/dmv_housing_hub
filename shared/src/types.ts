@@ -108,6 +108,12 @@ export interface CountyCurrentSnapshot {
   activeListings?: number;
   activeListingsYoY?: number;
   marketHealthScore?: number;
+  /**
+   * NAR-style Housing Affordability Index. HAI = (median household income / qualifying income) × 100.
+   * 100 means the median-income household exactly qualifies; >100 surplus, <100 shortfall.
+   * Note: NAR uses median family income; we substitute median household income (ACS B19013),
+   * so this index reads slightly more conservative than NAR's published series.
+   */
   affordabilityIndex?: number;
 }
 

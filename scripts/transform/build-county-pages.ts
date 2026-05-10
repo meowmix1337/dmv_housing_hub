@@ -361,7 +361,6 @@ function buildCountySummary(
   if (mortgageRate !== undefined) {
     const ai = affordabilityIndex({
       medianSalePrice: summary.current.medianSalePrice,
-      propertyTaxRate: taxRate,
       medianHouseholdIncome: summary.medianHouseholdIncome,
       mortgageRate,
     });

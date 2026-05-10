@@ -70,9 +70,9 @@ export const COMPARE_METRICS: CompareMetric[] = [
   },
   {
     id: 'affordabilityIndex',
-    label: 'Affordability (% of inc.)',
-    format: (v) => `${(v * 100).toFixed(0)}%`,
+    label: 'Affordability (NAR HAI)',
+    format: (v) => `${Math.round(v)}`,
     get: (c) => c.current.affordabilityIndex,
-    higherIsBetter: false,
+    higherIsBetter: true,
   },
 ];

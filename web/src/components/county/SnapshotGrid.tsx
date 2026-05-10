@@ -22,10 +22,12 @@ export function SnapshotGrid({ county }: SnapshotGridProps) {
 
   const affordability = current.affordabilityIndex;
   const affordDisplay = affordability !== undefined
-    ? `${(affordability * 100).toFixed(0)}%`
+    ? `${Math.round(affordability)}`
     : '—';
   const affordSub = affordability !== undefined
-    ? `of income (30% rule: affordable)`
+    ? affordability >= 100
+      ? 'NAR HAI · surplus'
+      : 'NAR HAI · shortfall'
     : undefined;
 
   return (
@@ -65,10 +67,10 @@ export function SnapshotGrid({ county }: SnapshotGridProps) {
         source="Composite"
       />
       <MetricCard
-        label="Affordability"
+        label="Affordability (NAR HAI)"
         value={affordDisplay}
         sub={affordSub}
-        source="vs. 30% rule"
+        source="NAR HAI"
       />
     </div>
   );
