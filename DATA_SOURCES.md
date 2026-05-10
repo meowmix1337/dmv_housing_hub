@@ -325,3 +325,56 @@ Every chart and metric on the site must show its source in a small footer or too
 - "Source: Bureau of Labor Statistics, LAUS"
 
 The `Observation` type carries `source` and `series` precisely for this. Do not strip them in transforms.
+
+---
+
+## Verification
+
+Spot-check, not automated. Run the steps below at every monthly ingest, on any ingester change, and on any methodology change at the upstream source. Record any discrepancy as a GitHub issue (do not silently overwrite the in-repo value).
+
+**Sentinel FIPS** for every cross-check: `11001` (DC), `24031` (Montgomery MD), `51059` (Fairfax VA), `51610` (Falls Church city VA). Four points cover one core-urban county, one large MD suburb, one large VA suburb, and one very small VA independent city — they exercise the data-coverage edges of every source.
+
+The `Last verified` date below is parsed by `scripts/lib/verification.ts` and surfaced as `manifest.sources[*].lastVerified` in `web/public/data/manifest.json`.
+
+### fred
+- Spot-check URL: `https://fred.stlouisfed.org/graph/fredgraph.csv?id=ATNHPIUS{FIPS}A` (county FHFA HPI, annual) and `https://fred.stlouisfed.org/graph/fredgraph.csv?id=MORTGAGE30US` (PMMS).
+- What to compare: latest annual `value` against the tail of `series.fhfaHpi` in `web/public/data/counties/{fips}.json`; latest weekly `MORTGAGE30US` value against the tail of `web/public/data/metrics/mortgage-rates.json`.
+- Tolerance: exact match (FRED publishes 2-decimal rounded values).
+- Last verified: 2026-05-10
+
+### census
+- Spot-check URL: `https://api.census.gov/data/2024/acs/acs5?get=NAME,B19013_001E,B19013_001M&for=county:*&in=state:11,24,51`
+- What to compare: `B19013_001E` (median household income) against `medianHouseholdIncome` in each sentinel county JSON. Verify `B19013_001M` is captured as `Observation.moe` in `scripts/.cache/census.json`.
+- Tolerance: exact dollars.
+- Last verified: 2026-05-10
+
+### bls
+- Spot-check URL: `https://www.bls.gov/web/metro/laucntycur14.txt` (rolling 14-month NSA county file).
+- What to compare: latest unemployment rate for sentinel FIPS (state+county FIPS columns) against `current.unemploymentRate` in each sentinel county JSON.
+- Tolerance: 0.1 percentage point (BLS publishes one decimal place).
+- Last verified: 2026-05-10
+
+### qcew
+- Spot-check URL: per-area CSV at `https://data.bls.gov/cew/data/api/{year}/{quarter}/area/{fips}.csv` (e.g. `…/2025/3/area/11001.csv`); the row of interest is `own_code=1, agglvl_code=71, industry_code=10` (federal government, county-by-ownership, all industries).
+- What to compare: `month3_emplvl` against `current.federalEmployment` in each sentinel county JSON.
+- Tolerance: exact integer.
+- Last verified: 2026-05-10
+
+### zillow
+- Spot-check URL: download the same CSVs the ingester uses, e.g. `https://files.zillowstatic.com/research/public_csvs/zhvi/County_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv`. Open in a spreadsheet and locate the row whose `RegionName`/`StateName` matches the sentinel.
+- What to compare: latest month column against `current.zhvi` in each sentinel county JSON.
+- Tolerance: ±$1 (rounding).
+- Last verified: 2026-05-10
+
+### redfin
+- Spot-check URL: `https://www.redfin.com/news/data-center/printable-market-data/` — locate the most recent monthly print-out PDF for the relevant county.
+- What to compare: county-level `Active Listings`, `Median Sale Price`, `Median Days on Market` against the matching `current.*` fields. Note that the in-repo DMV-aggregate `metrics/active-listings-dmv.json` is a sum across `contributingFips`, not an upstream-published number — do not cross-check the DMV total against any single Redfin region.
+- Tolerance: ±1 listing for inventory; exact dollars for median sale price.
+- Last verified: 2026-05-10
+
+### When to verify
+
+- At every monthly ingest run (`.github/workflows/ingest.yml` cron).
+- On any change to a file under `scripts/ingest/`.
+- On any methodology announcement at the upstream source (FHFA HPI release notes, Zillow Research blog, Redfin methodology updates, ACS vintage transitions, BLS series-format changes).
+- On any user-reported discrepancy.
