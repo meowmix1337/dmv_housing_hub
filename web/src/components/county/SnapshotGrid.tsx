@@ -26,8 +26,8 @@ export function SnapshotGrid({ county }: SnapshotGridProps) {
     : '—';
   const affordSub = affordability !== undefined
     ? affordability >= 100
-      ? 'NAR HAI · surplus'
-      : 'NAR HAI · shortfall'
+      ? 'Above 100 · more affordable'
+      : 'Below 100 · less affordable'
     : undefined;
 
   return (
