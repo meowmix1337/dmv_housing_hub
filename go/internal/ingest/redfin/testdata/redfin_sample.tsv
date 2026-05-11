@@ -1,0 +1,12 @@
+"PERIOD_BEGIN"	"PERIOD_END"	"PERIOD_DURATION"	"REGION_TYPE"	"REGION_TYPE_ID"	"TABLE_ID"	"IS_SEASONALLY_ADJUSTED"	"REGION"	"CITY"	"STATE"	"STATE_CODE"	"PROPERTY_TYPE"	"PROPERTY_TYPE_ID"	"MEDIAN_SALE_PRICE"	"MEDIAN_LIST_PRICE"	"MEDIAN_PPSF"	"HOMES_SOLD"	"NEW_LISTINGS"	"INVENTORY"	"MONTHS_OF_SUPPLY"	"MEDIAN_DOM"	"AVG_SALE_TO_LIST"	"SOLD_ABOVE_LIST"	"PRICE_DROPS"
+"2024-01-01"	"2024-01-31"	30	"county"	5	1	false	"District of Columbia, DC"	""	"District of Columbia"	"DC"	"All Residential"	-1	675000	699900	555.5	350	500	600	1.7	42	0.985	0.18	0.12
+"2024-01-01"	"2024-01-31"	30	"county"	5	1	false	"District of Columbia, DC"	""	"District of Columbia"	"DC"	"Single Family Residential"	6	900000	975000	525.0	75	110	130	1.7	38	0.99	0.22	0.10
+"2024-01-01"	"2024-01-31"	30	"county"	5	1	false	"Baltimore City County, MD"	""	"Maryland"	"MD"	"All Residential"	-1	200000	220000	150.0	200	350	500	2.5	60	0.97	0.10	0.20
+"2024-01-01"	"2024-01-31"	30	"county"	5	1	false	"Howard County, MD"	""	"Maryland"	"MD"	"Townhouse"	13	450000	465000	240.5	60	80	90	1.5	21	0.995	0.30	0.05
+"2024-01-01"	"2024-01-31"	30	"county"	5	1	false	"Alexandria city, VA"	""	"Virginia"	"VA"	"Condo/Co-op"	3	380000	395000	410.0	45	70	90	2.0	30	0.99	0.20	0.10
+"2024-01-01"	"2024-01-31"	30	"county"	5	1	false	"Frederick County, VA"	""	"Virginia"	"VA"	"All Residential"	-1	375000	389000	200.0	75	100	130	1.7	28	0.995	0.25	0.08
+"2024-01-01"	"2024-01-31"	30	"metro"	2	1	false	"Washington, DC"	""	"DC"	"DC"	"All Residential"	-1	600000	625000	320.0	5000	8000	10000	2.0	35	0.99	0.20	0.10
+"2024-01-01"	"2024-01-31"	7	"county"	5	1	false	"District of Columbia, DC"	""	"District of Columbia"	"DC"	"All Residential"	-1	680000	710000	560.0	80	125	600	7.5	40	0.985	0.18	0.12
+"2024-01-01"	"2024-01-31"	30	"county"	5	1	false	"Los Angeles County, CA"	""	"California"	"CA"	"All Residential"	-1	850000	899000	600.0	1500	2400	3000	2.0	30	0.98	0.25	0.10
+"2024-01-01"	"2024-01-31"	30	"county"	5	1	false	"Bigsby County, MD"	""	"Maryland"	"MD"	"All Residential"	-1	300000	310000	175.0	30	40	50	1.7	35	0.99	0.18	0.10
+"2024-01-01"	"2024-01-31"	30	"county"	5	1	false	"Howard County, MD"	""	"Maryland"	"MD"	"Apartment Complex"	99	100000	110000	100.0	1	2	3	3.0	60	0.98	0.10	0.15
