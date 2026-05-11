@@ -50,7 +50,7 @@ web/public/data/raw/
 
 # Tool-specific
 .omc
-.claude
+.claude/settings.local.json
 .serena
 
 # Git worktrees
