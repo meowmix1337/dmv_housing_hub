@@ -1,3 +1,14 @@
 .cache/
 .env
 *.tmp-*
+
+# Compiled binaries from `go build` at module root
+/ingest-fred
+/ingest-census
+/ingest-bls
+/ingest-qcew
+/ingest-zillow
+/ingest-redfin
+/ingest-all
+/transform
+/check-bundle-size
