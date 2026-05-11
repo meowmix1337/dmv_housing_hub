@@ -7,11 +7,13 @@ Interactive informational dashboard for the Washington, D.C. / Maryland / Virgin
 > 2. `PROJECT_SPEC.md` — what to build, in order
 > 3. `DATA_SOURCES.md` — how each ingester works
 > 4. `CLAUDE.md` — coding rules and constraints
+> 5. `CONTRIBUTING.md` — step-by-step build playbook
+> 6. `DESIGN_SYSTEM.md` — color, type, and component tokens for the frontend
 
 ## Quick start (local dev)
 
 ```bash
-# Prereqs: Node 20, npm 10
+# Prereqs: Node 24 (pinned via .nvmrc / package.json engines), npm 10+
 nvm use                 # picks up .nvmrc
 npm install             # installs all workspaces
 
@@ -19,15 +21,26 @@ npm install             # installs all workspaces
 cp .env.example .env
 # edit .env
 
-# Run the FRED ingester end-to-end
+# Run a single ingester end-to-end (others: census, bls, zillow, redfin, qcew)
 npm run ingest:fred --workspace=scripts
 
-# Build per-county JSON
+# Or ingest every source at once
+npm run ingest --workspace=scripts -- --all
+
+# Build per-county JSON from the cached observations
 npm run transform --workspace=scripts
 
 # Start the frontend
-npm run dev --workspace=web
+npm run dev
 # → http://localhost:5173
+```
+
+Quality checks (run both before opening a PR):
+
+```bash
+npm run typecheck       # tsc --noEmit across all workspaces
+npm run lint            # eslint .
+npm run test            # vitest across all workspaces
 ```
 
 ## Get API keys (all free, ~5 minutes total)
@@ -48,17 +61,34 @@ For deployment, add the same three as **environment secrets** to a GitHub enviro
 
 ## Architecture in one paragraph
 
-GitHub Actions runs ingest scripts on cron. Each script fetches from a free public API (FRED, Census, BLS, Zillow, Redfin), normalizes to `Observation[]`, and writes JSON to `web/public/data/`. A transform step joins observations into per-county JSON files. The workflow commits the changes; Cloudflare Pages auto-deploys. The frontend is a static React SPA that fetches `/data/counties/{fips}.json` and renders charts. No runtime backend, no database, no servers.
+GitHub Actions runs ingest scripts on cron. Each script fetches from a free public API (FRED, Census, BLS LAUS, BLS QCEW, Zillow, Redfin), normalizes to `Observation[]`, and writes JSON to `web/public/data/`. A transform step joins observations into per-county JSON files plus a few DMV-wide metric series. The workflow commits the changes; Cloudflare Pages auto-deploys. The frontend is a static React SPA that fetches `/data/counties/{fips}.json` (or a metric file) and renders charts. No runtime backend, no database, no servers.
+
+### Frontend routes
+
+| Path | Page | Purpose |
+|---|---|---|
+| `/` | `Home.tsx` | DMV choropleth + headline cards |
+| `/counties` | `Counties.tsx` | Sortable county table |
+| `/county/:fips` | `County.tsx` | Single-county detail with charts |
+| `/compare` | `Compare.tsx` | Overlay up to 5 counties |
+| `/methodology` | `Methodology.tsx` | Source list, citations, known gaps |
 
 ## Repository layout
 
 ```
 .
-├── .github/workflows/        # GitHub Actions cron jobs
-├── scripts/                  # Ingest + transform (TypeScript)
+├── .github/workflows/        # GitHub Actions: ingest cron + CI
+├── scripts/                  # Ingest + transform (TypeScript, runs in CI)
 ├── shared/                   # Types shared across scripts and web
-├── web/                      # React + Vite frontend
-└── docs/                     # ARCHITECTURE, PROJECT_SPEC, DATA_SOURCES, CLAUDE
+├── web/                      # React + Vite frontend (Cloudflare Pages output)
+├── web/public/data/          # Committed JSON: counties/, metrics/, manifest.json
+├── docs/                     # Verification logs, CRISPY workflow artifacts
+├── ARCHITECTURE.md           # Stack rationale
+├── PROJECT_SPEC.md           # Build order + definition of done
+├── DATA_SOURCES.md           # Per-source ingester contracts
+├── CONTRIBUTING.md           # Step-by-step build playbook
+├── DESIGN_SYSTEM.md          # Color, type, component tokens
+└── CLAUDE.md                 # Coding rules for AI contributors
 ```
 
 ## Data refresh schedule
@@ -67,14 +97,17 @@ A single workflow (`.github/workflows/ingest.yml`) runs monthly (5th at 14:00 UT
 
 | Source | Upstream cadence |
 |---|---|
-| Freddie Mac mortgage rates | Weekly (Thu) |
+| Freddie Mac mortgage rates (via FRED) | Weekly (Thu) |
 | Redfin market metrics | Weekly (Wed) |
 | Zillow ZHVI / ZORI | Monthly |
 | Realtor.com hotness (via FRED) | Monthly |
-| BLS unemployment | Monthly |
+| BLS LAUS unemployment | Monthly |
+| BLS QCEW wages / employment | Quarterly |
 | FHFA state HPI | Quarterly |
 | FHFA county HPI | Annual |
 | Census ACS | Annual |
+
+Per-source freshness (including a `lastVerified` stamp) is published at `web/public/data/manifest.json` and surfaced on the Methodology page.
 
 ## Deployment
 
@@ -82,7 +115,7 @@ A single workflow (`.github/workflows/ingest.yml`) runs monthly (5th at 14:00 UT
 2. Cloudflare dashboard → Pages → Connect to Git → select repo
 3. Build settings:
    - Framework preset: **Vite**
-   - Build command: `npm run build --workspace=web`
+   - Build command: `npm run build` (builds the `shared` workspace then `web`)
    - Build output: `web/dist`
 4. Optional: custom domain (free TLS auto-provisioned)
 
