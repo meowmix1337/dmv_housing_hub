@@ -27,23 +27,22 @@ jobs:
           # acts as github-actions[bot], which is blocked by branch rules.
           token: ${{ secrets.INGEST_PUSH_TOKEN }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-go@v6
         with:
-          node-version: '24'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
+          go-version: '1.26'
+          cache-dependency-path: go/go.sum
 
       - name: Ingest all sources
-        run: npm run ingest --workspace=scripts -- --all
+        run: go run ./cmd/ingest-all
+        working-directory: go
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
           BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
 
       - name: Transform → per-county JSON
-        run: npm run transform --workspace=scripts
+        run: go run ./cmd/transform
+        working-directory: go
 
       - name: Commit data changes
         run: |

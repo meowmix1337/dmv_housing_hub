@@ -4,6 +4,8 @@ This document is the canonical implementation guide for an interactive informati
 
 **Read `ARCHITECTURE.md` first** for the architectural rationale. This document is the build plan.
 
+> **Note (post-v1):** the ingest + transform pipeline was ported from TypeScript (`scripts/`) to Go (`go/`) after v1 shipped — see `docs/crispy/go-ingest-refactor/` and `go/README.md` for the current pipeline. The TypeScript ingester file paths in this spec (e.g. `scripts/ingest/fred.ts`) now correspond to `go/internal/ingest/fred/fred.go`, etc. The DataSource contract, source list, and JSON output shapes are unchanged.
+
 ---
 
 ## Goal

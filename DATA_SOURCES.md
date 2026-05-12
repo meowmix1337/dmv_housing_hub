@@ -103,7 +103,7 @@ For DMV: loop over the FIPS list, breaking into state+county pairs (state 11 for
 
 ### Gotchas
 
-- ACS year is hardcoded as `ACS_YEAR = 2023` in `scripts/ingest/census.ts`. The 2024 5-year vintage was released December 2025 and is available — bump this constant in a follow-up PR.
+- ACS year is hardcoded as `acsYear = 2024` in `go/internal/ingest/census/census.go`. Bump this constant when a newer 5-year vintage ships in December of each year.
 - DC is queried as `for=county:001&in=state:11` (single county-equivalent).
 - Independent VA cities are county-equivalents — included automatically when querying `for=county:*&in=state:51`.
 
@@ -293,7 +293,7 @@ Build in this order:
 
 ## What goes into `web/public/data/`
 
-After all ingesters run, `scripts/transform/build-county-pages.ts` produces:
+After all ingesters run, `go/cmd/transform` produces:
 
 ```
 web/public/data/
@@ -334,7 +334,7 @@ Spot-check, not automated. Run the steps below at every monthly ingest, on any i
 
 **Sentinel FIPS** for every cross-check: `11001` (DC), `24031` (Montgomery MD), `51059` (Fairfax VA), `51610` (Falls Church city VA). Four points cover one core-urban county, one large MD suburb, one large VA suburb, and one very small VA independent city — they exercise the data-coverage edges of every source.
 
-The `Last verified` date below is parsed by `scripts/lib/verification.ts` and surfaced as `manifest.sources[*].lastVerified` in `web/public/data/manifest.json`.
+The `Last verified` date below is parsed by `go/internal/transform/verification.go` and surfaced as `manifest.sources[*].lastVerified` in `web/public/data/manifest.json`.
 
 ### fred
 - Spot-check URL: `https://fred.stlouisfed.org/graph/fredgraph.csv?id=ATNHPIUS{FIPS}A` (county FHFA HPI, annual) and `https://fred.stlouisfed.org/graph/fredgraph.csv?id=MORTGAGE30US` (PMMS).
@@ -344,7 +344,7 @@ The `Last verified` date below is parsed by `scripts/lib/verification.ts` and su
 
 ### census
 - Spot-check URL: `https://api.census.gov/data/2024/acs/acs5?get=NAME,B19013_001E,B19013_001M&for=county:*&in=state:11,24,51`
-- What to compare: `B19013_001E` (median household income) against `medianHouseholdIncome` in each sentinel county JSON. Verify `B19013_001M` is captured as `Observation.moe` in `scripts/.cache/census.json`.
+- What to compare: `B19013_001E` (median household income) against `medianHouseholdIncome` in each sentinel county JSON. Verify `B19013_001M` is captured as `Observation.moe` in `go/.cache/census.json`.
 - Tolerance: exact dollars.
 - Last verified: 2026-05-10
 
@@ -375,6 +375,6 @@ The `Last verified` date below is parsed by `scripts/lib/verification.ts` and su
 ### When to verify
 
 - At every monthly ingest run (`.github/workflows/ingest.yml` cron).
-- On any change to a file under `scripts/ingest/`.
+- On any change to a file under `go/internal/ingest/`.
 - On any methodology announcement at the upstream source (FHFA HPI release notes, Zillow Research blog, Redfin methodology updates, ACS vintage transitions, BLS series-format changes).
 - On any user-reported discrepancy.

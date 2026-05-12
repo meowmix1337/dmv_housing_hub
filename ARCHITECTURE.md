@@ -27,10 +27,25 @@ This shape rules out almost every "modern" architecture. We don't need a backend
 
 **Why static wins here**: Sub-50ms global response times, $0/month, no cold starts, no surprise bills, the entire data history is in git, and a contributor can run the whole thing locally with `npm run dev`. The "database" is your repo's commit log.
 
-### D2: TypeScript end-to-end
-**Chosen**: TypeScript for ingest scripts, transforms, and frontend, with shared types in a `shared/` workspace package.
+### D2: TypeScript on the frontend; Go for ingest + transform
+**Chosen**: TypeScript for the frontend (React + Vite). Go 1.26 for the
+ingest + transform pipeline (`go/`). Source-of-truth types live in
+`shared/src/types.ts`; `go/internal/types/types.go` hand-mirrors them
+with a contract test that round-trips a real county JSON to catch drift.
 
-**Why**: The boundary between ingestion output and frontend consumption is the most common source of bugs in a dashboard like this. Sharing types across that boundary at compile time eliminates an entire class of "works locally, breaks in production after a data refresh" failures.
+**Why**: The boundary between ingestion output and frontend consumption
+is the most common source of bugs in a dashboard like this. The hand-
+mirror + contract test catches schema drift just as well as compile-time
+sharing did, without forcing both sides onto the same language. Go
+brings tighter memory bounds (Redfin streams through gzip + scanner
+under 200 MB RSS where the Node pipeline was less predictable) and a
+clearer concurrency story for the parallel QCEW fetches. The frontend
+keeps TypeScript because that's where its leverage is.
+
+**Go toolchain choices**: `avast/retry-go/v4` for HTTP retry + Retry-
+After honoring; `log/slog` for structured logging; `caarlos0/env/v11`
+plus `joho/godotenv` for environment loading; standard library
+everywhere else.
 
 ### D3: React + Vite
 **Chosen**: React 18 + Vite. Output is a static SPA.
@@ -69,7 +84,7 @@ MapLibre is the open-source Mapbox fork — same API, no account required, free 
 - A Node cron daemon on a VM: requires a VM.
 - Cloudflare Workers Cron Triggers: free, but 10ms CPU limit per invocation makes the larger ingests (Redfin TSVs, Census ACS bulk) impractical without complicated chunking.
 - Lambda + EventBridge: works, but ties us to AWS and complicates secrets/logging.
-- Per-cadence workflows (weekly/monthly/quarterly/annual, one per source): rejected after a brief experiment. Source caches under `scripts/.cache/` are gitignored, so a workflow that only ingests one source then runs the transform produces a CountySummary missing every other source's fields, churning the committed JSON. Running every source in a single workflow keeps every cache present at transform time.
+- Per-cadence workflows (weekly/monthly/quarterly/annual, one per source): rejected after a brief experiment. Source caches under `go/.cache/` are gitignored, so a workflow that only ingests one source then runs the transform produces a CountySummary missing every other source's fields, churning the committed JSON. Running every source in a single workflow keeps every cache present at transform time.
 
 GitHub Actions gives us 2,000 minutes/month free (unlimited on public repos), real shell access, easy secrets, and the same place our code lives. The workflow that fetches data is a few lines of YAML.
 
@@ -85,7 +100,7 @@ GitHub Actions gives us 2,000 minutes/month free (unlimited on public repos), re
 **Trade-off**: the repo grows by tens of MB/year. At our scale (single-digit GB lifetime), this is fine. If it ever isn't, we move bulky raw archives to R2 and keep only the per-page derived JSON in git.
 
 ### D8: Build-time data joining, not client-time
-**Chosen**: A `scripts/transform/build-county-pages.ts` step joins ingester outputs into per-page JSON files. The browser fetches one JSON per page view.
+**Chosen**: A `go/cmd/transform` step joins ingester outputs into per-page JSON files. The browser fetches one JSON per page view.
 
 **Rejected**:
 - Ship a single `all-data.json` blob: tens of MB on first load, awful Lighthouse score.
@@ -144,4 +159,4 @@ The set of jurisdictions in `shared/src/counties.ts` (`DMV_COUNTIES`) is current
 
 ## TL;DR
 
-> Static JSON precomputed by GitHub Actions, served from Cloudflare Pages. TypeScript everywhere. No runtime backend, no database, $0/month. Build for v1; the architecture has clear migration paths if any assumption changes.
+> Static JSON precomputed by GitHub Actions, served from Cloudflare Pages. Go for ingest + transform, TypeScript for the frontend, shared types in `shared/` (hand-mirrored in `go/internal/types/`). No runtime backend, no database, $0/month. Build for v1; the architecture has clear migration paths if any assumption changes.

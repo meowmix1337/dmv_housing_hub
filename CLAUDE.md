@@ -20,18 +20,19 @@ npm run typecheck                    # tsc --noEmit across all workspaces
 npm run lint                         # eslint .
 
 # Tests
-npm run test                         # vitest run across all workspaces
-npm run test --workspace=scripts     # scripts workspace only
-npx vitest run scripts/lib/counties.test.ts   # single test file
+npm run test                         # vitest run across all workspaces (shared + web)
+make test                            # go test ./... + npm test (one command for both pipelines)
+cd go && go test ./...               # Go tests only
 
-# Data pipeline
-npm run ingest --workspace=scripts   # all ingesters (requires API keys in env)
-npm run ingest:fred --workspace=scripts      # single ingester
-npm run transform --workspace=scripts        # join raw cache → per-county JSON
-
-# Local ingest requires env vars
-FRED_API_KEY=xxx npm run ingest:fred --workspace=scripts
+# Data pipeline (Go 1.26)
+make ingest                          # all ingesters (requires API keys in repo-root .env)
+make transform                       # join raw cache → per-county JSON
+cd go && go run ./cmd/ingest-fred    # single ingester
+cd go && OUT_DATA_DIR=/tmp/foo go run ./cmd/transform   # write elsewhere
 ```
+
+`.env` at repo root is auto-loaded by every `go run ./cmd/*` (via
+`godotenv.Load("../.env", ".env")`); no manual export needed.
 
 Required environment variables for ingestion (stored as GitHub Actions environment secrets in the `production` environment for CI):
 - `FRED_API_KEY` — free at https://fred.stlouisfed.org/docs/api/api_key.html
@@ -45,8 +46,8 @@ Required environment variables for ingestion (stored as GitHub Actions environme
 ### Workspace layout
 
 ```
-shared/     canonical TypeScript types — imported by both scripts and web
-scripts/    Node.js ingest + transform pipeline (runs in GitHub Actions, not the browser)
+shared/     canonical TypeScript types — imported by web; hand-mirrored in go/internal/types
+go/         Go 1.26 ingest + transform pipeline (runs in GitHub Actions, not the browser)
 web/        React + Vite SPA (static output, deployed to Cloudflare Pages)
 ```
 
@@ -54,38 +55,38 @@ web/        React + Vite SPA (static output, deployed to Cloudflare Pages)
 
 ```
 GitHub Actions cron (.github/workflows/ingest.yml — single monthly run)
-  → scripts/ingest/run.ts --all
-  → scripts/.cache/{source}.json          ← raw Observation[] dump (gitignored)
-  → scripts/transform/build-county-pages.ts
+  → go/cmd/ingest-all
+  → go/.cache/{source}.json               ← raw IngestResult dump (gitignored)
+  → go/cmd/transform
   → web/public/data/counties/{fips}.json  ← CountySummary (committed to repo)
-  → web/public/data/metrics/*.json        ← MetricSeries (national/metro)
-  → web/public/data/manifest.json         ← freshness timestamps
+  → web/public/data/metrics/*.json        ← MetricSeries (national/metro/DMV)
+  → web/public/data/manifest.json         ← freshness + lastVerified per source
   → Cloudflare Pages redeploy (triggered by the commit)
 ```
 
 ### Type boundary (`shared/types.ts`)
 
-`Observation` is the atomic output of every ingester:
+`Observation` is the atomic output of every ingester (shape declared in `shared/src/types.ts`, hand-mirrored in `go/internal/types/types.go`):
 ```ts
 { source, series, fips, metric: MetricId, observedAt, value, unit }
 ```
 
 `CountySummary` is what the County page consumes — one JSON file per county under `web/public/data/counties/{fips}.json`. The transform step joins multiple source caches into this shape.
 
-Never break `shared/types.ts` without updating both the scripts and the web consumer.
+Never break `shared/src/types.ts` without updating both `go/internal/types/types.go` (and its contract test) and the web consumer.
 
 ### Ingester pattern
 
-Every ingester implements `DataSource` (`scripts/ingest/DataSource.ts`):
-```ts
-interface DataSource {
-  readonly name: string;
-  readonly cadence: Cadence;
-  fetch(): Promise<Observation[]>;
+Every ingester implements `DataSource` (`go/internal/ingest/datasource.go`):
+```go
+type DataSource interface {
+    Name() string
+    Cadence() types.Cadence
+    Fetch(ctx context.Context) ([]types.Observation, error)
 }
 ```
 
-`scripts/ingest/fred.ts` is the reference implementation. Study it before writing a new ingester.
+`go/internal/ingest/fred/fred.go` is the reference implementation. See `go/README.md` for the full "adding a new ingester" checklist.
 
 ### Frontend routes
 
@@ -122,11 +123,11 @@ If a request requires breaking one of these: "This requires X, which is excluded
 - `interface` for object shapes; `type` for unions/aliases
 - Discriminated unions for variant types
 
-### Libraries
-- All HTTP: `scripts/lib/http.ts` (`fetchWithRetry` — retries, backoff, Retry-After)
-- All file writes: `scripts/lib/storage.ts` (atomic temp-then-rename)
-- Logging: `scripts/lib/log.ts` (Pino, structured); no `console.log` in production paths
-- Errors: throw typed `IngestError` with `source`, `series`, `cause` fields; include status + body excerpt for HTTP errors
+### Libraries (Go pipeline)
+- All HTTP: `go/internal/http/client.go` (retry-go-backed, honors Retry-After numeric + HTTP date)
+- All file writes: `go/internal/storage/atomic.go` (atomic temp-then-rename via `os.Rename`)
+- Logging: `go/internal/log/log.go` (`log/slog` with TTY-aware handler); no `fmt.Println` in production paths
+- Errors: wrap HTTP failures as `*httpclient.HTTPError{Status, URL, BodyExcerpt}`; non-retryable 4xx (except 408/429) fail fast
 
 ### Data integrity
 - Validate upstream data shapes with Zod or hand-rolled checks

@@ -10,7 +10,6 @@
   },
   "workspaces": [
     "shared",
-    "scripts",
     "web"
   ],
   "scripts": {
@@ -18,10 +17,8 @@
     "dev": "npm run dev --workspace=web",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint .",
-    "check-bundle-size": "tsx scripts/check-bundle-size.ts",
+    "check-bundle-size": "cd go && go run ./cmd/check-bundle-size",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
-    "ingest": "npm run ingest --workspace=scripts",
-    "transform": "npm run transform --workspace=scripts",
     "test": "npm run test --workspaces --if-present"
   },
   "devDependencies": {

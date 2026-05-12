@@ -1,0 +1,12 @@
+{
+  "realtime_start": "2026-05-10",
+  "realtime_end": "2026-05-10",
+  "observation_start": "1971-04-02",
+  "observation_end": "9999-12-31",
+  "observations": [
+    {"realtime_start": "2026-05-10", "realtime_end": "2026-05-10", "date": "1971-04-02", "value": "7.33"},
+    {"realtime_start": "2026-05-10", "realtime_end": "2026-05-10", "date": "1971-04-09", "value": "7.31"},
+    {"realtime_start": "2026-05-10", "realtime_end": "2026-05-10", "date": "1971-04-16", "value": "."},
+    {"realtime_start": "2026-05-10", "realtime_end": "2026-05-10", "date": "1971-04-23", "value": "7.28"}
+  ]
+}
