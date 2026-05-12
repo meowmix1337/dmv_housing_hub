@@ -2,20 +2,22 @@
   "fips": "24003",
   "name": "Anne Arundel County",
   "jurisdiction": "MD",
-  "lastUpdated": "2026-05-10T18:21:07.149Z",
+  "medianHouseholdIncome": 124911,
+  "propertyTaxRate": 0.009038,
+  "lastUpdated": "2026-05-12T02:11:05.269Z",
   "current": {
-    "zhvi": 505791.88234481006,
-    "zhviYoY": 0.0055062164003324985,
     "medianSalePrice": 505000,
     "medianSalePriceYoY": 0.007984031936127744,
+    "zhvi": 505791.88234481006,
+    "zhviYoY": 0.0055062164003324985,
     "daysOnMarket": 44,
     "monthsSupply": 2.1,
-    "unemploymentRate": 4.3,
     "saleToListRatio": 0.9989874311,
     "pctSoldAboveList": 0.3676470588,
+    "unemploymentRate": 4.3,
     "federalEmployment": 14641,
-    "federalEmploymentAsOf": "2025-09-01",
     "federalEmploymentYoY": -0.04885337491067368,
+    "federalEmploymentAsOf": "2025-09-01",
     "activeListings": 1156,
     "activeListingsYoY": 0.14568880079286423,
     "marketHealthScore": 68,
@@ -6470,7 +6472,5 @@
         "value": 14641
       }
     ]
-  },
-  "medianHouseholdIncome": 124911,
-  "propertyTaxRate": 0.009038
+  }
 }

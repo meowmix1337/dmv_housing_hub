@@ -2,20 +2,22 @@
   "fips": "24510",
   "name": "Baltimore city",
   "jurisdiction": "MD",
-  "lastUpdated": "2026-05-10T18:21:07.149Z",
+  "medianHouseholdIncome": 62177,
+  "propertyTaxRate": 0.02248,
+  "lastUpdated": "2026-05-12T02:11:05.269Z",
   "current": {
-    "zhvi": 184591.72379031172,
-    "zhviYoY": -0.011353495862475246,
     "medianSalePrice": 242000,
     "medianSalePriceYoY": 0.07555555555555556,
+    "zhvi": 184591.72379031172,
+    "zhviYoY": -0.011353495862475246,
     "daysOnMarket": 60,
     "monthsSupply": 4.5,
-    "unemploymentRate": 6.2,
     "saleToListRatio": 1.007987913,
     "pctSoldAboveList": 0.3150442478,
+    "unemploymentRate": 6.2,
     "federalEmployment": 11535,
-    "federalEmploymentAsOf": "2025-09-01",
     "federalEmploymentYoY": -0.03971028971028971,
+    "federalEmploymentAsOf": "2025-09-01",
     "activeListings": 2547,
     "activeListingsYoY": 0.07741116751269035,
     "marketHealthScore": 54,
@@ -6470,7 +6472,5 @@
         "value": 11535
       }
     ]
-  },
-  "medianHouseholdIncome": 62177,
-  "propertyTaxRate": 0.02248
+  }
 }

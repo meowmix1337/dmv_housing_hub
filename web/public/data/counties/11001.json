@@ -2,20 +2,22 @@
   "fips": "11001",
   "name": "District of Columbia",
   "jurisdiction": "DC",
-  "lastUpdated": "2026-05-10T18:21:07.149Z",
+  "medianHouseholdIncome": 109870,
+  "propertyTaxRate": 0.0085,
+  "lastUpdated": "2026-05-12T02:11:05.269Z",
   "current": {
-    "zhvi": 583076.9209961476,
-    "zhviYoY": -0.029493112500912567,
     "medianSalePrice": 678000,
     "medianSalePriceYoY": 0.035114503816793895,
+    "zhvi": 583076.9209961476,
+    "zhviYoY": -0.029493112500912567,
     "daysOnMarket": 68,
     "monthsSupply": 5.2,
-    "unemploymentRate": 5.7,
     "saleToListRatio": 0.9867668623,
     "pctSoldAboveList": 0.2344045369,
+    "unemploymentRate": 5.7,
     "federalEmployment": 186162,
-    "federalEmploymentAsOf": "2025-09-01",
     "federalEmploymentYoY": -0.038727267094215694,
+    "federalEmploymentAsOf": "2025-09-01",
     "activeListings": 2755,
     "activeListingsYoY": -0.046052631578947366,
     "marketHealthScore": 50,
@@ -6470,7 +6472,5 @@
         "value": 186162
       }
     ]
-  },
-  "medianHouseholdIncome": 109870,
-  "propertyTaxRate": 0.0085
+  }
 }

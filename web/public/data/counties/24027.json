@@ -2,20 +2,22 @@
   "fips": "24027",
   "name": "Howard County",
   "jurisdiction": "MD",
-  "lastUpdated": "2026-05-10T18:21:07.149Z",
+  "medianHouseholdIncome": 149763,
+  "propertyTaxRate": 0.01014,
+  "lastUpdated": "2026-05-12T02:11:05.269Z",
   "current": {
-    "zhvi": 636617.9343221543,
-    "zhviYoY": -0.002573800148556691,
     "medianSalePrice": 567500,
     "medianSalePriceYoY": -0.038119290157460295,
+    "zhvi": 636617.9343221543,
+    "zhviYoY": -0.002573800148556691,
     "daysOnMarket": 26,
     "monthsSupply": 1.8,
-    "unemploymentRate": 4.2,
     "saleToListRatio": 1.011523023,
     "pctSoldAboveList": 0.4386792453,
+    "unemploymentRate": 4.2,
     "federalEmployment": 1703,
-    "federalEmploymentAsOf": "2025-09-01",
     "federalEmploymentYoY": -0.23253717890941866,
+    "federalEmploymentAsOf": "2025-09-01",
     "activeListings": 379,
     "activeListingsYoY": 0.02710027100271003,
     "marketHealthScore": 75,
@@ -6470,7 +6472,5 @@
         "value": 1703
       }
     ]
-  },
-  "medianHouseholdIncome": 149763,
-  "propertyTaxRate": 0.01014
+  }
 }

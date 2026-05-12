@@ -2,20 +2,22 @@
   "fips": "51610",
   "name": "Falls Church city",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-10T18:21:07.149Z",
+  "medianHouseholdIncome": 143262,
+  "propertyTaxRate": 0.01355,
+  "lastUpdated": "2026-05-12T02:11:05.269Z",
   "current": {
-    "zhvi": 1148927.2686233965,
-    "zhviYoY": 0.03776396873771523,
     "medianSalePrice": 1175000,
     "medianSalePriceYoY": 0.19289340101522842,
+    "zhvi": 1148927.2686233965,
+    "zhviYoY": 0.03776396873771523,
     "daysOnMarket": 24,
     "monthsSupply": 2.6,
-    "unemploymentRate": 4,
     "saleToListRatio": 1.02365904,
     "pctSoldAboveList": 0.4285714286,
+    "unemploymentRate": 4,
     "federalEmployment": 1905,
-    "federalEmploymentAsOf": "2025-09-01",
     "federalEmploymentYoY": -0.06157635467980296,
+    "federalEmploymentAsOf": "2025-09-01",
     "activeListings": 18,
     "activeListingsYoY": 0.125,
     "marketHealthScore": 68,
@@ -5922,7 +5924,5 @@
         "value": 1905
       }
     ]
-  },
-  "medianHouseholdIncome": 143262,
-  "propertyTaxRate": 0.01355
+  }
 }

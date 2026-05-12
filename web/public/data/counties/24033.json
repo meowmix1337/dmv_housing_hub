@@ -2,20 +2,22 @@
   "fips": "24033",
   "name": "Prince George's County",
   "jurisdiction": "MD",
-  "lastUpdated": "2026-05-10T18:21:07.149Z",
+  "medianHouseholdIncome": 101798,
+  "propertyTaxRate": 0.01,
+  "lastUpdated": "2026-05-12T02:11:05.269Z",
   "current": {
-    "zhvi": 428633.1022635717,
-    "zhviYoY": -0.0039452622510878195,
     "medianSalePrice": 440000,
     "medianSalePriceYoY": 0.006272047935141192,
+    "zhvi": 428633.1022635717,
+    "zhviYoY": -0.0039452622510878195,
     "daysOnMarket": 57,
     "monthsSupply": 3.3,
-    "unemploymentRate": 5.4,
     "saleToListRatio": 0.9930703384,
     "pctSoldAboveList": 0.3123028391,
+    "unemploymentRate": 5.4,
     "federalEmployment": 28631,
-    "federalEmploymentAsOf": "2025-09-01",
     "federalEmploymentYoY": -0.06247748780248207,
+    "federalEmploymentAsOf": "2025-09-01",
     "activeListings": 2087,
     "activeListingsYoY": 0.16787912702853947,
     "marketHealthScore": 58,
@@ -6470,7 +6472,5 @@
         "value": 28631
       }
     ]
-  },
-  "medianHouseholdIncome": 101798,
-  "propertyTaxRate": 0.01
+  }
 }

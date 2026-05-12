@@ -2,20 +2,22 @@
   "fips": "51683",
   "name": "Manassas city",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-10T18:21:07.149Z",
+  "medianHouseholdIncome": 113590,
+  "propertyTaxRate": 0.0119,
+  "lastUpdated": "2026-05-12T02:11:05.269Z",
   "current": {
-    "zhvi": 491877.89831539406,
-    "zhviYoY": -0.0038133670478339115,
     "medianSalePrice": 525200,
     "medianSalePriceYoY": 0.005451299649183262,
+    "zhvi": 491877.89831539406,
+    "zhviYoY": -0.0038133670478339115,
     "daysOnMarket": 36,
     "monthsSupply": 1.7,
-    "unemploymentRate": 3.5,
     "saleToListRatio": 1.001428516,
     "pctSoldAboveList": 0.3571428571,
+    "unemploymentRate": 3.5,
     "federalEmployment": 847,
-    "federalEmploymentAsOf": "2025-09-01",
     "federalEmploymentYoY": -0.1572139303482587,
+    "federalEmploymentAsOf": "2025-09-01",
     "activeListings": 73,
     "activeListingsYoY": 0.1774193548387097,
     "marketHealthScore": 69,
@@ -5866,7 +5868,5 @@
         "value": 847
       }
     ]
-  },
-  "medianHouseholdIncome": 113590,
-  "propertyTaxRate": 0.0119
+  }
 }

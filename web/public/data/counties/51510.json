@@ -2,20 +2,22 @@
   "fips": "51510",
   "name": "Alexandria city",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-10T18:21:07.149Z",
+  "medianHouseholdIncome": 119681,
+  "propertyTaxRate": 0.0111,
+  "lastUpdated": "2026-05-12T02:11:05.269Z",
   "current": {
-    "zhvi": 685515.2306786352,
-    "zhviYoY": 0.011929583794131742,
     "medianSalePrice": 660000,
     "medianSalePriceYoY": -0.12582781456953643,
+    "zhvi": 685515.2306786352,
+    "zhviYoY": 0.011929583794131742,
     "daysOnMarket": 29,
     "monthsSupply": 1.9,
-    "unemploymentRate": 3.4,
     "saleToListRatio": 1.004715423,
     "pctSoldAboveList": 0.3821989529,
+    "unemploymentRate": 3.4,
     "federalEmployment": 9668,
-    "federalEmploymentAsOf": "2025-09-01",
     "federalEmploymentYoY": 0.07481934408004447,
+    "federalEmploymentAsOf": "2025-09-01",
     "activeListings": 366,
     "activeListingsYoY": 0.18064516129032257,
     "marketHealthScore": 69,
@@ -5894,7 +5896,5 @@
         "value": 9668
       }
     ]
-  },
-  "medianHouseholdIncome": 119681,
-  "propertyTaxRate": 0.0111
+  }
 }

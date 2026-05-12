@@ -2,20 +2,22 @@
   "fips": "51153",
   "name": "Prince William County",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-10T18:21:07.149Z",
+  "medianHouseholdIncome": 131402,
+  "propertyTaxRate": 0.01125,
+  "lastUpdated": "2026-05-12T02:11:05.269Z",
   "current": {
-    "zhvi": 587492.2752445017,
-    "zhviYoY": 0.005825722301223818,
     "medianSalePrice": 570000,
     "medianSalePriceYoY": 0.053117782909930716,
+    "zhvi": 587492.2752445017,
+    "zhviYoY": 0.005825722301223818,
     "daysOnMarket": 35,
     "monthsSupply": 1.9,
-    "unemploymentRate": 3.9,
     "saleToListRatio": 1.005548908,
     "pctSoldAboveList": 0.4088983051,
+    "unemploymentRate": 3.9,
     "federalEmployment": 7196,
-    "federalEmploymentAsOf": "2025-09-01",
     "federalEmploymentYoY": -0.10207137509358623,
+    "federalEmploymentAsOf": "2025-09-01",
     "activeListings": 886,
     "activeListingsYoY": 0.18926174496644296,
     "marketHealthScore": 69,
@@ -6470,7 +6472,5 @@
         "value": 7196
       }
     ]
-  },
-  "medianHouseholdIncome": 131402,
-  "propertyTaxRate": 0.01125
+  }
 }

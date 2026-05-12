@@ -2,20 +2,22 @@
   "fips": "51013",
   "name": "Arlington County",
   "jurisdiction": "VA",
-  "lastUpdated": "2026-05-10T18:21:07.149Z",
+  "medianHouseholdIncome": 142114,
+  "propertyTaxRate": 0.01013,
+  "lastUpdated": "2026-05-12T02:11:05.269Z",
   "current": {
-    "zhvi": 824388.1891108117,
-    "zhviYoY": -0.0014756253703557597,
     "medianSalePrice": 815000,
     "medianSalePriceYoY": 0.03689567430025445,
+    "zhvi": 824388.1891108117,
+    "zhviYoY": -0.0014756253703557597,
     "daysOnMarket": 31,
     "monthsSupply": 2.1,
-    "unemploymentRate": 3.2,
     "saleToListRatio": 1.007894439,
     "pctSoldAboveList": 0.3875598086,
+    "unemploymentRate": 3.2,
     "federalEmployment": 24983,
-    "federalEmploymentAsOf": "2025-09-01",
     "federalEmploymentYoY": -0.020850480109739368,
+    "federalEmploymentAsOf": "2025-09-01",
     "activeListings": 432,
     "activeListingsYoY": 0.04600484261501211,
     "marketHealthScore": 71,
@@ -6470,7 +6472,5 @@
         "value": 24983
       }
     ]
-  },
-  "medianHouseholdIncome": 142114,
-  "propertyTaxRate": 0.01013
+  }
 }
