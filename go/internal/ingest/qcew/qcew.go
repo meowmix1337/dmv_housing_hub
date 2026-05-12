@@ -31,14 +31,14 @@ const (
 
 // Row holds the few QCEW columns we care about.
 type Row struct {
-	AreaFIPS        string
-	OwnCode         string
-	IndustryCode    string
-	AgglvlCode      string
-	Year            string
-	Qtr             string
-	DisclosureCode  string
-	Month3Emplvl    string
+	AreaFIPS       string
+	OwnCode        string
+	IndustryCode   string
+	AgglvlCode     string
+	Year           string
+	Qtr            string
+	DisclosureCode string
+	Month3Emplvl   string
 }
 
 type task struct {
@@ -48,10 +48,10 @@ type task struct {
 }
 
 type Source struct {
-	client   *httpclient.Client
-	logger   *slog.Logger
-	baseURL  string // override for tests
-	now      func() time.Time
+	client  *httpclient.Client
+	logger  *slog.Logger
+	baseURL string // override for tests
+	now     func() time.Time
 }
 
 func New(client *httpclient.Client) *Source {
@@ -65,6 +65,14 @@ func New(client *httpclient.Client) *Source {
 
 func (s *Source) Name() string           { return "qcew" }
 func (s *Source) Cadence() types.Cadence { return types.CadenceQuarterly }
+
+// SetLogger overrides the package-default logger. Used by cmd/ingest-all
+// to inject a per-source attribute on every record.
+func (s *Source) SetLogger(l *slog.Logger) {
+	if l != nil {
+		s.logger = l
+	}
+}
 
 func (s *Source) Fetch(ctx context.Context) ([]types.Observation, error) {
 	now := s.now()

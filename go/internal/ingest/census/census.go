@@ -77,6 +77,14 @@ func New(cfg Config, client *httpclient.Client) *Source {
 func (s *Source) Name() string           { return "census" }
 func (s *Source) Cadence() types.Cadence { return types.CadenceAnnual }
 
+// SetLogger overrides the package-default logger. Used by cmd/ingest-all
+// to inject a per-source attribute on every record.
+func (s *Source) SetLogger(l *slog.Logger) {
+	if l != nil {
+		s.logger = l
+	}
+}
+
 func (s *Source) Fetch(ctx context.Context) ([]types.Observation, error) {
 	dmvFips := dmvFipsSet()
 

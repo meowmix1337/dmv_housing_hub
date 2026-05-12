@@ -47,11 +47,11 @@ var columnMap = []struct {
 }
 
 var propertyTypeSlugs = map[string]string{
-	"All Residential":            "all_residential",
-	"Single Family Residential":  "single_family",
-	"Condo/Co-op":                "condo",
-	"Townhouse":                  "townhouse",
-	"Multi-Family (2-4 Unit)":    "multi_family",
+	"All Residential":           "all_residential",
+	"Single Family Residential": "single_family",
+	"Condo/Co-op":               "condo",
+	"Townhouse":                 "townhouse",
+	"Multi-Family (2-4 Unit)":   "multi_family",
 }
 
 // BuildFipsIndex keys lookups by "STATE_CODE:lowercase-county-name" to avoid
@@ -100,6 +100,14 @@ func (s *Source) SetURL(u string) { s.url = u }
 
 func (s *Source) Name() string           { return "redfin" }
 func (s *Source) Cadence() types.Cadence { return types.CadenceWeekly }
+
+// SetLogger overrides the package-default logger. Used by cmd/ingest-all
+// to inject a per-source attribute on every record.
+func (s *Source) SetLogger(l *slog.Logger) {
+	if l != nil {
+		s.logger = l
+	}
+}
 
 func (s *Source) Fetch(ctx context.Context) ([]types.Observation, error) {
 	s.logger.Info("redfin: fetching county market tracker", "url", s.url)
