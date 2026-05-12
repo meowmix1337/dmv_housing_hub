@@ -20,10 +20,10 @@ import (
 )
 
 const (
-	zhviBase       = "https://files.zillowstatic.com/research/public_csvs/zhvi"
-	zoriBase       = "https://files.zillowstatic.com/research/public_csvs/zori"
-	dcMetroRegion  = "Washington, DC"
-	dcMetroFIPS    = "47900"
+	zhviBase      = "https://files.zillowstatic.com/research/public_csvs/zhvi"
+	zoriBase      = "https://files.zillowstatic.com/research/public_csvs/zori"
+	dcMetroRegion = "Washington, DC"
+	dcMetroFIPS   = "47900"
 )
 
 type Scope int
@@ -93,6 +93,14 @@ func (s *Source) SetFiles(files []FileSpec) { s.files = files }
 
 func (s *Source) Name() string           { return "zillow" }
 func (s *Source) Cadence() types.Cadence { return types.CadenceMonthly }
+
+// SetLogger overrides the package-default logger. Used by cmd/ingest-all
+// to inject a per-source attribute on every record.
+func (s *Source) SetLogger(l *slog.Logger) {
+	if l != nil {
+		s.logger = l
+	}
+}
 
 func (s *Source) Fetch(ctx context.Context) ([]types.Observation, error) {
 	fipsIndex := BuildFipsIndex()

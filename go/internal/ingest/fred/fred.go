@@ -35,7 +35,7 @@ const (
 )
 
 type seriesSpec struct {
-	idLit  string                 // for national + state scopes
+	idLit  string                   // for national + state scopes
 	idFn   func(fips string) string // for county scope
 	metric types.MetricId
 	unit   types.Unit
@@ -69,8 +69,8 @@ var stateSeriesToFIPS = map[string]string{
 }
 
 type fredObservation struct {
-	Date  string            `json:"date"`
-	Value types.MaybeFloat  `json:"value"`
+	Date  string           `json:"date"`
+	Value types.MaybeFloat `json:"value"`
 }
 
 type fredResponse struct {
@@ -78,9 +78,9 @@ type fredResponse struct {
 }
 
 type Source struct {
-	cfg        Config
-	client     *httpclient.Client
-	logger     *slog.Logger
+	cfg         Config
+	client      *httpclient.Client
+	logger      *slog.Logger
 	countySleep time.Duration // override for tests
 	baseURL     string        // override for tests
 }
@@ -95,8 +95,16 @@ func New(cfg Config, client *httpclient.Client) *Source {
 	}
 }
 
-func (s *Source) Name() string            { return "fred" }
-func (s *Source) Cadence() types.Cadence  { return types.CadenceMonthly }
+func (s *Source) Name() string           { return "fred" }
+func (s *Source) Cadence() types.Cadence { return types.CadenceMonthly }
+
+// SetLogger overrides the package-default logger. Used by cmd/ingest-all
+// to inject a per-source attribute on every record.
+func (s *Source) SetLogger(l *slog.Logger) {
+	if l != nil {
+		s.logger = l
+	}
+}
 
 func (s *Source) Fetch(ctx context.Context) ([]types.Observation, error) {
 	var out []types.Observation
@@ -193,4 +201,3 @@ func sleepCtx(ctx context.Context, d time.Duration) error {
 		return ctx.Err()
 	}
 }
-

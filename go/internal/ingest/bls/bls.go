@@ -20,12 +20,12 @@ import (
 )
 
 const (
-	apiURL              = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
-	startYear           = "2015"
-	endYear             = "2026"
-	msaFederalSeries    = "SMU11479009091000001"
-	msaFederalFIPS      = "11-metro"
-	requestSucceeded    = "REQUEST_SUCCEEDED"
+	apiURL           = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+	startYear        = "2015"
+	endYear          = "2026"
+	msaFederalSeries = "SMU11479009091000001"
+	msaFederalFIPS   = "11-metro"
+	requestSucceeded = "REQUEST_SUCCEEDED"
 )
 
 type Config struct {
@@ -95,10 +95,10 @@ func buildSeriesMeta() map[string]seriesMeta {
 }
 
 type Source struct {
-	cfg     Config
-	client  *httpclient.Client
-	logger  *slog.Logger
-	apiURL  string // override for tests
+	cfg    Config
+	client *httpclient.Client
+	logger *slog.Logger
+	apiURL string // override for tests
 }
 
 func New(cfg Config, client *httpclient.Client) *Source {
@@ -112,6 +112,14 @@ func New(cfg Config, client *httpclient.Client) *Source {
 
 func (s *Source) Name() string           { return "bls" }
 func (s *Source) Cadence() types.Cadence { return types.CadenceMonthly }
+
+// SetLogger overrides the package-default logger. Used by cmd/ingest-all
+// to inject a per-source attribute on every record.
+func (s *Source) SetLogger(l *slog.Logger) {
+	if l != nil {
+		s.logger = l
+	}
+}
 
 func (s *Source) Fetch(ctx context.Context) ([]types.Observation, error) {
 	meta := buildSeriesMeta()
