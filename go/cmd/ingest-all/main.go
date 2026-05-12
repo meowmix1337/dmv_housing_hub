@@ -1,19 +1,22 @@
-// Command ingest-all runs every DataSource sequentially and writes each
+// Command ingest-all runs every DataSource concurrently and writes each
 // result to go/.cache/{source}.json. A per-source failure is logged and
-// collected; later sources still run. Exits non-zero if any source failed.
+// collected; sibling sources still run. Exits non-zero if any source failed.
 package main
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
+	"golang.org/x/sync/errgroup"
 
 	httpclient "github.com/meowmix1337/dmv_housing_hub/go/internal/http"
 	"github.com/meowmix1337/dmv_housing_hub/go/internal/ingest"
@@ -49,10 +52,14 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
+	os.Exit(run(ctx, logger, buildSources(cfg)))
+}
+
+func buildSources(cfg config) []ingest.DataSource {
 	apiClient := httpclient.New(httpclient.Options{Timeout: 60 * time.Second, MaxRetries: 3})
 	bigClient := httpclient.New(httpclient.Options{Timeout: 300 * time.Second, MaxRetries: 3})
 
-	sources := []ingest.DataSource{
+	return []ingest.DataSource{
 		fred.New(fred.Config{APIKey: cfg.FREDAPIKey}, apiClient),
 		census.New(census.Config{APIKey: cfg.CensusAPIKey}, apiClient),
 		bls.New(bls.Config{APIKey: cfg.BLSAPIKey}, apiClient),
@@ -60,35 +67,64 @@ func main() {
 		zillow.New(httpclient.New(httpclient.Options{Timeout: 120 * time.Second, MaxRetries: 3})),
 		redfin.New(bigClient),
 	}
+}
 
+// run orchestrates the six DataSources concurrently. Errors from individual
+// sources are collected; siblings keep running. Returns 0 on full success,
+// 1 if any source failed. Exposed as a separate function so main_test.go
+// can drive it with fake sources.
+func run(ctx context.Context, logger *slog.Logger, sources []ingest.DataSource) int {
+	startedAt := time.Now().UTC()
+	logger.Info("ingest-all: started", "sources", len(sources))
+
+	g, gctx := errgroup.WithContext(ctx)
+	var mu sync.Mutex
 	var errs []error
+
 	for _, src := range sources {
-		if err := runOne(ctx, src, logger); err != nil {
-			errs = append(errs, fmt.Errorf("%s: %w", src.Name(), err))
-		}
+		src := src
+		g.Go(func() error {
+			if err := runOne(gctx, src, logger); err != nil {
+				mu.Lock()
+				errs = append(errs, fmt.Errorf("%s: %w", src.Name(), err))
+				mu.Unlock()
+			}
+			// Always return nil so a failure in one source does not cancel
+			// the errgroup context for its siblings.
+			return nil
+		})
 	}
+	_ = g.Wait()
+
+	totalMs := time.Since(startedAt).Milliseconds()
+	logger.Info("ingest-all: complete",
+		"totalDurationMs", totalMs,
+		"sources", len(sources),
+		"failed", len(errs),
+	)
 
 	if len(errs) > 0 {
-		logger.Error("ingest-all: one or more sources failed", "count", len(errs))
 		for _, e := range errs {
 			logger.Error("ingest-all failure", "err", e)
 		}
 		_ = errors.Join(errs...) // for documentation; pkglog already emitted each
-		os.Exit(1)
+		return 1
 	}
-	logger.Info("ingest-all: complete")
+	return 0
 }
 
-func runOne(ctx context.Context, src ingest.DataSource, logger interface {
-	Info(msg string, args ...any)
-	Error(msg string, args ...any)
-}) error {
+func runOne(ctx context.Context, src ingest.DataSource, logger *slog.Logger) error {
+	srcLogger := logger.With("source", src.Name())
+	if ls, ok := src.(interface{ SetLogger(*slog.Logger) }); ok {
+		ls.SetLogger(srcLogger)
+	}
+
 	startedAt := time.Now().UTC()
-	logger.Info("ingest:start", "source", src.Name(), "cadence", src.Cadence())
+	srcLogger.Info("ingest:start", "cadence", src.Cadence())
 
 	obs, err := src.Fetch(ctx)
 	if err != nil {
-		logger.Error("ingest:failed", "source", src.Name(), "err", err)
+		srcLogger.Error("ingest:failed", "err", err)
 		return err
 	}
 
@@ -103,11 +139,10 @@ func runOne(ctx context.Context, src ingest.DataSource, logger interface {
 	}
 	path := filepath.Join(".cache", src.Name()+".json")
 	if err := storage.WriteJSON(path, result); err != nil {
-		logger.Error("cache write failed", "source", src.Name(), "path", path, "err", err)
+		srcLogger.Error("cache write failed", "path", path, "err", err)
 		return err
 	}
-	logger.Info("ingest:done",
-		"source", src.Name(),
+	srcLogger.Info("ingest:done",
 		"count", len(obs),
 		"durationMs", result.DurationMs,
 		"cachePath", path,
