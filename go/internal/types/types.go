@@ -215,7 +215,7 @@ type ActiveListingsDmv struct {
 	ContributingFips []string                `json:"contributingFips"`
 	AsOf             string                  `json:"asOf"`
 	Latest           ActiveListingsDmvLatest `json:"latest"`
-	LatestYoY        *float64                `json:"latestYoY"`
+	LatestYoY        *float64                `json:"latestYoY,omitempty"`
 	Series           ActiveListingsBreakdown `json:"series"`
 	Coverage         DmvCoverage             `json:"coverage"`
 }
@@ -248,7 +248,7 @@ type FederalEmploymentDmv struct {
 	ContributingFips []string      `json:"contributingFips"`
 	Coverage         DmvCoverage   `json:"coverage"`
 	Total            float64       `json:"total"`
-	TotalYoY         *float64      `json:"totalYoY"`
+	TotalYoY         *float64      `json:"totalYoY,omitempty"`
 	AsOf             string        `json:"asOf"`
 	Points           []MetricPoint `json:"points"`
 }

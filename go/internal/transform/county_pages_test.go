@@ -22,7 +22,7 @@ func TestBuildCountyPagesFREDOnly(t *testing.T) {
 		{Source: "fred", Series: "MORTGAGE30US", FIPS: "USA", Metric: types.MetricMortgage30yRate, ObservedAt: "2020-01-01", Value: 3.5, Unit: types.UnitPercent},
 	}
 
-	out, err := BuildCountyPages(obs, counties.All(), nil, now)
+	out, err := BuildCountyPages(obs, counties.All(), nil, now, BuildOptions{})
 	if err != nil {
 		t.Fatalf("BuildCountyPages: %v", err)
 	}
