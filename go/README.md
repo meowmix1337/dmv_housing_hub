@@ -57,7 +57,8 @@ make ingest         # ~3 min: hits every upstream; writes go/.cache/*.json
 make transform      # ~1 s: reads go/.cache/, writes web/public/data/
 make web            # vite build → web/dist/
 make check-bundle-size   # gates web/dist/assets/*.js to ≤ 500 kB gz
-make test           # go test ./... + npm test
+make lint           # golangci-lint v2 (subsumes go vet) — config in go/.golangci.yml
+make test           # runs `lint` first, then go test ./... + npm test
 ```
 
 Or call binaries directly from `go/`:
@@ -68,8 +69,21 @@ go run ./cmd/ingest-fred       # one source
 go run ./cmd/ingest-all        # all sources, sequential, collected errors
 go run ./cmd/transform         # writes ../web/public/data/
 go test ./...
-golangci-lint run ./...
+golangci-lint run ./...        # same config CI uses; see .golangci.yml
 ```
+
+### Tool versions
+
+Local dev and CI must agree on the linter version, or you'll see false
+positives one place and not the other.
+
+- **golangci-lint v2.11.4** — install with
+  `brew install golangci-lint` (macOS) or
+  `curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.11.4`.
+  CI pins the same version via `golangci/golangci-lint-action@v7`
+  (`version: v2.11.4`) in `.github/workflows/ci.yml`. Bump both in lockstep.
+- **Go 1.26** — both `go.mod` and the `actions/setup-go` step in CI
+  request `1.26`. Update both together.
 
 `OUT_DATA_DIR=/tmp/foo go run ./cmd/transform` writes elsewhere — handy
 when comparing two transform runs without clobbering committed data.

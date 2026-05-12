@@ -1,0 +1,15 @@
+# golangci-lint v2 configuration. Keep this in sync with the pinned action
+# version in .github/workflows/ci.yml.
+#
+# v2's default linter set (errcheck, govet, ineffassign, staticcheck, unused)
+# covers everything `go vet` does plus more. Run with:
+#   cd go && golangci-lint run ./...
+# or from repo root:
+#   make lint
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: standard  # errcheck, govet, ineffassign, staticcheck, unused
