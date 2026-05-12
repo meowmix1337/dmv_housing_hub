@@ -3,8 +3,6 @@ node_modules/
 .pnp
 .pnp.js
 
-docs/crispy/*
-
 # Build outputs
 dist/
 build/
@@ -12,7 +10,7 @@ build/
 
 # Cache directories
 .cache/
-scripts/.cache/
+go/.cache/
 .vite/
 .eslintcache
 
@@ -38,9 +36,6 @@ yarn-error.log*
 # Test coverage
 coverage/
 *.lcov
-
-# Raw data archives (regenerable, do not commit)
-scripts/raw-archives/
 
 # OS
 Thumbs.db
