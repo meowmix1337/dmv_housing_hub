@@ -1,44 +1,44 @@
 {
-  "generatedAt": "2026-05-12T02:11:05Z",
+  "generatedAt": "2026-06-06T14:14:49Z",
   "sources": [
     {
       "name": "fred",
-      "lastUpdated": "2026-05-12T02:10:31.084005829Z",
+      "lastUpdated": "2026-06-06T14:14:48.3196486Z",
       "cadence": "monthly",
       "status": "ok",
       "lastVerified": "2026-05-10"
     },
     {
       "name": "census",
-      "lastUpdated": "2026-05-12T02:10:32.722604966Z",
+      "lastUpdated": "2026-06-06T14:13:54.693006291Z",
       "cadence": "annual",
       "status": "ok",
       "lastVerified": "2026-05-10"
     },
     {
       "name": "bls",
-      "lastUpdated": "2026-05-12T02:10:33.571956746Z",
+      "lastUpdated": "2026-06-06T14:13:53.551302778Z",
       "cadence": "monthly",
       "status": "ok",
       "lastVerified": "2026-05-10"
     },
     {
       "name": "zillow",
-      "lastUpdated": "2026-05-12T02:10:55.954080314Z",
+      "lastUpdated": "2026-06-06T14:13:57.610791317Z",
       "cadence": "monthly",
       "status": "ok",
       "lastVerified": "2026-05-10"
     },
     {
       "name": "redfin",
-      "lastUpdated": "2026-05-12T02:11:04.062554334Z",
+      "lastUpdated": "2026-06-06T14:14:00.664792374Z",
       "cadence": "weekly",
       "status": "ok",
       "lastVerified": "2026-05-10"
     },
     {
       "name": "qcew",
-      "lastUpdated": "2026-05-12T02:10:51.879557749Z",
+      "lastUpdated": "2026-06-06T14:14:01.743749978Z",
       "cadence": "quarterly",
       "status": "ok",
       "lastVerified": "2026-05-10"

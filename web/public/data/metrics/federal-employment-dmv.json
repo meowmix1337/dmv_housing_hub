@@ -4,7 +4,7 @@
   "unit": "count",
   "cadence": "quarterly",
   "source": "qcew",
-  "lastUpdated": "2026-05-12T02:11:05.269Z",
+  "lastUpdated": "2026-06-06T14:14:49.246Z",
   "aggregation": "in-repo county sum",
   "contributingFips": [
     "11001",
@@ -55,9 +55,9 @@
     ],
     "missing": []
   },
-  "total": 387475,
-  "totalYoY": -0.059570068370633396,
-  "asOf": "2025-09-01",
+  "total": 361651,
+  "totalYoY": -0.1230959851412887,
+  "asOf": "2025-12-01",
   "points": [
     {
       "date": "2015-03-01",
@@ -221,15 +221,19 @@
     },
     {
       "date": "2025-03-01",
-      "value": 407716
+      "value": 407715
     },
     {
       "date": "2025-06-01",
-      "value": 398834
+      "value": 398836
     },
     {
       "date": "2025-09-01",
-      "value": 387475
+      "value": 387487
+    },
+    {
+      "date": "2025-12-01",
+      "value": 361651
     }
   ]
 }
