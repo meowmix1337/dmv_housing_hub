@@ -20,7 +20,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # PAT belonging to a repo admin (on the ruleset bypass list) so the
           # commit step can push directly to main. The default GITHUB_TOKEN
