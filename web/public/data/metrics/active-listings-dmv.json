@@ -4,7 +4,7 @@
   "unit": "count",
   "cadence": "monthly",
   "source": "redfin",
-  "lastUpdated": "2026-06-06T14:14:49.246Z",
+  "lastUpdated": "2026-07-05T15:06:54.314Z",
   "aggregation": "in-repo county sum",
   "contributingFips": [
     "11001",
